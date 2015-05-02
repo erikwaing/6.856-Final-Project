@@ -1,0 +1,89 @@
+\title{Survival Set Connectivity}
+\author{
+  Fermi Ma \and
+  Erik Waingarten
+}
+\date{\today}
+
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+We analyze the following problem, which we call Survival Set Connectivity (SSC): 
+\begin{quote}
+\textbf{Input}: A graph weighted $G = (V, E)$, $c: E \rightarrow \mathbb{R}$ and a collection of sets $(S_i, T_i)$, along with a value $k$. \\
+\textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
+\end{quote}
+
+Note that this problem generalizes the common connectivity problems. The question of whether there are $k$ connections between $s$ and $t$ sets only one pair $(S_1, T_1)$ where $S_1 = \{ s \}$ and $T_i = \{ t \}$. 
+
+[ GIVE MORE EXAMPLES HERE ]
+
+As with many of these kinds of problems, SSC is $\mathsf{NP}$-hard. The common route taken in 6.856 has been to find polynomial time algorithms for approximations; however, in the case with SSC, it is $\mathsf{NP}$-hard to achieve a polylogarithmic approximation. 
+
+Another possible approach is therefore to relax the question. Instead of requiring at least $k$ edge-disjoint paths, we will allow some sets to have less than $k$ paths, but not too much less. We will present an approximation algorithm which outputs a subgraph of cost $O(polylog(n))$ times the optimum such that for each $(S_i, T_i)$ pairs, there are at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths between $S_i$ and $T_i$. 
+
+The approximation algorithm will follow the usual approach to approximation algorithms of this kind. We will first write the problem as an integer linear program, we solve the linear programming relaxation, and then we round the solution. 
+
+The analysis will be slightly different from the analysis shown in class. Usually, our randomized algorithm will return a feasible solution to the problem, and our analysis work is mostly to bound the cost. This was the case with max-sat, set-cover, and multi-commodity flows. In our case, we will show that the rounded solution will be close to the optimal, but we will work to show that the rounded solution is feasible. 
+
+\section{Linear Programming Formulation}
+
+We can formulate a cut-based integer linear program for SSC. We will have a variable
+\begin{align}
+ x_e &= \left\{ \begin{array}{cc} 1 & e \in H \\
+                                  0 & \text{ otherwise } \end{array} \right.
+\end{align}
+So $H$ will be the subgraph consisting of the edges $e$ where $x_e = 1$. \\ \\
+SSC-LP:
+\begin{align}
+\min & \sum c(x) x_e  \\
+\text{ s.t } & \sum_{e \in \delta(S)} x_e \geq k, \text{ where } S_i \subset S, T_i \subset V - S, \delta(S) \text{ is the edges of the $S$ cut }
+\end{align}
+This cut-based integer linear program finds exactly $H$. To see why the constraints ensure that each $(S_i, T_i)$ pair has at least $k$ edge disjoint paths, we can look at the cuts corresponding to $S_i$ and $T_i$. First, we let $S = S_i$, then there are $k$ outgoing edges. We can choose to include one more node to $S$, following a particular outgoing edge of the cut in $H$. We can continue doing this until we reach $T_i$. This will trace out a path between $S_i$ and $T_i$. If we do this for each edge, and then we do this for each $(S_i, T_i)$ pair, we can confirm that there are in fact $k$ edge-disjoint paths between each $(S_i, T_i)$ pair. 
+
+There is one caveat that has not been addressed. We have exponentially many constraints! Since there can be exponentially many set $S$ with $S_i \subset S$ and $T_i \subset V - S$. We solve this with a similar idea to semi-definite programming, by giving a separation oracle which runs in polynomial time. 
+
+The separation oracle will just compute the minimum $S_i, T_i$ cut in the graph. What we can do is contract $S_i$ and $T_i$ to single edges, and then compute the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so we have satisfied the constraints.
+
+The linear programming relaxation to the above program will be the first step of the algorithm. The remaining work will be rounding the fractional solution to an integral solution and satisfy the constraints. 
+
+\section{Tree Embeddings}
+
+The next tool we will need are tree embeddings. We have seen metric embeddings in class. Basically, we had a desired type of object $O$ (in the case of cuts, we had a metric space corresponding to a cut) what we did was come up with a metric space $(X, d)$ and a map $f: (X, d) \rightarrow O$ such that the map satisfied certain properties on the distances. 
+
+Here we will have a similar goal. We want to understand minimum cost weighted graphs, but since analyzing them is hard, we instead study minimum cost weighted trees, and then we map the trees back to the graphs. 
+
+\begin{definition}
+A tree embedding of a weighted graph $G = (V, E)$ will be a tree $T = (V_T, E_T)$ with weights $y: E \rightarrow \mathbb{R}$ and a function $\text{map} : V_T \cup E_t \rightarrow V \cup E$ such that
+\begin{align}
+\text{map}(V_t) &\subset V \\
+\text{map}(E_t) &\subset E
+\end{align}
+In other words, vertices map to vertices and edges map to edges. We will usually refer to an embedding as $(T, y, \text{map})$. 
+\end{definition}
+
+[ Give some pictures of  tree embeddings here ]
+
+\subsection{Racke Tree Black Box}
+
+\subsection{RoundGKR Black Box}
+
+\section{Algorithm}
+
+\subsection{Analysis}
+
+\section{Conclusion}
+
+\subsection{Open Problems}
+
+\end{document}
