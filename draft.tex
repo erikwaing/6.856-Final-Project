@@ -22,7 +22,7 @@
 
 We analyze the following problem, which we call Survival Set Connectivity (SSC): 
 \begin{quote}
-\textbf{Input}: A graph weighted $G = (V, E)$, $c: E \rightarrow \mathbb{R}$ and a collection of sets $(S_i, T_i)$, along with a value $k$. \\
+\textbf{Input}: A graph weighted $G = (V, E)$, $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of sets $(S_i, T_i)$, along with a value $k$. \\
 \textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
@@ -66,7 +66,7 @@ The next tool we will need are tree embeddings. We have seen metric embeddings i
 Here we will have a similar goal. We want to understand minimum cost weighted graphs, but since analyzing them is hard, we instead study minimum cost weighted trees, and then we map the trees back to the graphs. 
 
 \begin{definition}
-A tree embedding of a weighted graph $G = (V, E)$ will be a tree $T = (V_T, E_T)$ with weights $y: E \rightarrow \mathbb{R}$ and a function $\text{map} : V_T \cup E_t \rightarrow V \cup P(E)$ ($P(E)$ is the power set of $E$) such that
+A tree embedding of a weighted graph $G = (V, E)$ will be a tree $T = (V_T, E_T)$ with weights $y: E \rightarrow \mathbb{R}^{\geq 0}$ and a function $\text{map} : V_T \cup E_t \rightarrow V \cup P(E)$ ($P(E)$ is the power set of $E$) such that
 \begin{align}
 \text{map}(V_t) &\subset V \\
 \text{map}(E_t) &\subset E
@@ -102,7 +102,7 @@ Having made these definition, we can refer to the inverse $\text{map}^{-1}$ in t
 \begin{definition}
 Given a Racke tree, the load on an edge of the graph $e \in E$ is
 \begin{align}
-load(e) &= \sum_{f \in \text{map}^{-1}} y_f
+load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f
 \end{align}
 The relative load, $rload(e) = \dfrac{load(e)}{x_e}$. 
 \end{definition}
@@ -123,23 +123,45 @@ For obtaining a flow on the graph given one on the Racke tree, if $f_i^T(e)$ is 
 There are some crucial properties of Racke trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to [CITE] for the proofs.
 
 \begin{lemma}
-If we have a graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}$ and a Racke tree $(T, y, \text{map})$. A multicommodity flow on $G$, $\{ f_i \}$, maps directly to a multicommodity flow on the tree which is also feasible. Likewise, a multicommodity flow on $T$ maps directly into a multicommodity flow on the graph, with the small caveat that we must multiply the capacity of the edge by the relative load. 
+\label{lem:mapflows}
+If we have a graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\geq 0}$ and a Racke tree $(T, y, \text{map})$. A multicommodity flow on $G$, $\{ f_i \}$, maps directly to a multicommodity flow on the tree which is also feasible. Likewise, a multicommodity flow on $T$ maps directly into a multicommodity flow on the graph, with the small caveat that we must multiply the capacity of the edge by the relative load. 
 \end{lemma}
 
-[ EXPLAIN HOW TO MAP FLOWS ]
-
 \begin{lemma}
-For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}$, we can sample efficiently from Racke trees of $G$, such that 
+\label{lem:rload}
+For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\geq 0}$, we can sample efficiently from Racke trees of $G$, such that 
 \begin{align}
 \max_{e \in E} \textbf{E}[rload(e)] &\leq \alpha = O(\log n) 
 \end{align}
 \end{lemma}
 
 \begin{lemma}
+\label{thm:height}
 The height of the trees sampled is $O(\log nC)$, where $C$ is the ratio of the largest to smallest capacity in $G$. In our cases, the height will always be $O(\log n)$. 
 \end{lemma}
 
 \subsection{RoundGKR Black Box}
+
+The RoundGKR algorithm is an algorithm to rounding algorithm used for the Group Steiner Tree problem. We first describe the problem and give the algorithm. \\
+
+Group Steiner Tree:
+\begin{quote}
+\textbf{Input}: A rooted tree $T = (V_t, E_t)$ at $r$ with costs $c: E_t \rightarrow \mathbb{R}^{\geq 0}$ as well as subsets of vertices $\{ T_i \}$. \\
+\textbf{Output}: A minimum cost subtree $H \subset T$ with a path from $r$ to $t_i$ for some $t \in T_i$ for all $i$.
+\end{quote}
+
+A similar linear program produces a fractional solution, and the algorith RoundGKR is a way of rounding the solution back. The optimum to the linear program will be a set of values for each edge $y_e \in [0, 1]$. Since we are in a tree setting and we are looking for paths from the root, we can assume that $y_{p(e)} \geq y_e$ (parent edges are always greater).
+
+The RoundGKR is simple, it starts at the root and makes its way down the tree as its being built. It includes the edge $e$ in the subtree with probability $\frac{y_e}{y_{p(e)}}$. A simple inductive argment shows that an edge $e$ is chosen with probability $y_e$. This is because $Pr[\text{include $e$}] = Pr[\text{include $e$ $|$ include $p(e)$}]*Pr[\text{include $p(e)$}] = y_e$ (if we don't include $p(e)$, then we don't include $e$. 
+
+The important property of the algorithm can be summarized in the following lemma, whose proof we refer to [CITE].
+
+\begin{lemma}
+\label{lem:findpath}
+Suppose that $T = (V_t, E_t)$ support a flow of at least $1$ from $T_i$ to the root $r$ without the edges $F_t$. Then the RoundGKR returns a solution with a path in $T$ from $T_i$ to $r$ without using $F_t$ with probability at least $\Omega(\frac{1}{\log n})$. 
+\end{lemma}
+
+We will rely on this lemma heavily. In fact, since we need $\Omega(\frac{k}{\log n})$ edge-disjoint paths, we will argue that if we let $F_t$ be any set of at most $\Omega(\frac{k}{\log n})$ edges, then we still have a path, and therefore, we have $\Omega(\frac{k}{\log n})$ paths.  
 
 \section{Algorithm}
 
