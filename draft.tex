@@ -1,7 +1,6 @@
-\title{Survival Set Connectivity}
+\title{Survivable Set Connectivity}
 \author{
-  Fermi Ma \and
-  Erik Waingarten
+ by Fermi Ma and Erik Waingarten
 }
 \date{\today}
 
@@ -20,7 +19,13 @@
 
 \section{Introduction}
 
-We analyze the following problem, which we call Survival Set Connectivity (SSC): 
+In this paper, we analyze the problem of Survivable Set Connectivity (SSC), a generalization of the classical Set Connectivity problem. Set connectivity is formulated as:
+\begin{quote}
+\textbf{Input}: A graph weighted $G = (V, E)$, $c: E \rightarrow \mathbb{R}$ and a collection of sets $(S_i, T_i)$. \\
+\textbf{Output}: A minimum cost subgraph $H \subset G$ such that there is a path between $S_i$ and $T_i$ for each $i$. 
+\end{quote}
+In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be connected by $k_i$ paths, instead of just 1. More formally, the problem is:
+
 \begin{quote}
 \textbf{Input}: A graph weighted $G = (V, E)$, $c: E \rightarrow \mathbb{R}$ and a collection of sets $(S_i, T_i)$, along with a value $k$. \\
 \textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
