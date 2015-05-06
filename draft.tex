@@ -45,12 +45,12 @@ The analysis will be slightly different from the analysis shown in class. Usuall
 
 \section{Linear Programming Formulation}
 
-We can formulate a cut-based integer linear program for SSC. We will have a variable
+We can formulate a cut-based integer linear program for SSC. For each edge, we have the variable $x_e$ defined as
 \begin{align}
  x_e &= \left\{ \begin{array}{cc} 1 & e \in H \\
-                                  0 & \text{ otherwise } \end{array} \right.
+                                  0 & \text{ otherwise. } \end{array} \right.
 \end{align}
-So $H$ will be the subgraph consisting of the edges $e$ where $x_e = 1$. \\ \\
+$H$ will be the subgraph consisting of edges $e$ where $x_e = 1$. \\ \\
 SSC-LP:
 \begin{align}
 \min & \sum c(x) x_e  \\
