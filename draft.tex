@@ -213,18 +213,43 @@ The proof follows the common strategy: we bound the probability that a given edg
 
 Let $(T = (V_t, E_t), y, \text{map})$ be a Racke tree sampled from $\mathcal{D}$. By line $12$ of the algorithm, for an edge $e \in H$, there needs to be some $e' \in E_t$ such that $e \in \text{map}(e')$ and $e' \in E^{v,q}$ for some $v \in V_t$ and $q$. In addition, $v$ needed to have been $q$-marked. 
 
-For each $q$ and $v$, $v$ is $q$-marked with probability at most $\frac{4}{2^{-q}}$. In any of the $\tau'$ iterations of the RoundGKR algorithm where $v$ was $q$-marked, an edge is selected with probability $2^{q+1}y_e$. 
+For each $q$ and $v$, $v$ is $q$-marked with probability at most $\frac{4}{2^{-q}}$. In any of the $\tau'$ iterations of the RoundGKR algorithm where $v$ was $q$-marked, an edge is selected with probability $2^{q+1}y_e$. Figure~\ref{fig:roundgkronnode} shows a possible execution when there is some value of flow found when node $v$ has been $q$-marked.
 
-Since a given edge has $height(T)$ ancestors, it will take part in $height(T)$ possible $v$'s which can be $q$-marked. So the probability that an edge $e$ is included is at most 
+Since a given edge has $height(T)$ ancestors, it will take part in $height(T)$ possible $v$'s which can be $q$-marked. So the probability that an edge $e'$ in the tree is included is at most 
 \begin{align}
-height(T) \sum_q \frac{4}{2^{-q}} 2^{q+1} y_e \tau' &= height(T) \tau' y_2 \sum_q 2 \\
-&= O(\log^3 n) y_e 
+height(T) \sum_q \frac{4}{2^{-q}} 2^{q+1} y_{e'} \tau' &= height(T) \tau' y_{e'} \sum_q 2 \\
+&= O(\log^3 n) y_{e'} 
 \end{align}
 This is because $height(T) = O(\log n)$, $\tau' = O(\log n)$, and $q$ takes $O(\log n)$ possible values.
 
-So we have shown that the probability that a given edge is included in a particular sampling of a Racke tree is $O(\log^3 n) y_e$. 
- 
+So we have shown that the probability that a given edge of the tree is included in a particular sampling of a Racke tree is $O(\log^3 n) y_{e'}$. 
+
+So now in order to include some edge $e$ of the graph, we must include some edge $e' \in \text{map}^{-1}(e)$. So let $X_e$ be the indicator random variable which says that edge $e$ is included in $H$, and $Y_{e'}$ be the indicator random variable which says that edge $e'$ in the tree is included in some RoundGKR execution. Above, we argued that $E[Y_{e'}] \leq O(\log^3 n)y_{e'}$.
+\begin{align}
+X_e \leq \sum_{e' \in \text{map}(e)} Y_{e'}
+\end{align}
+Because if $e$ is included in the graph, it must have come from some edge in the tree. 
+\begin{align}
+ \textbf{E}[X_e] &\leq \tau \sum_{e' \in \text{map}^{-1}(e)} O(\log^3 n) y_{e'} \\
+        &= O(\log^3 n) \tau \textbf{E}[load(e)] \\
+        &= O(\log^3 n) \tau \textbf{E}[rload(e)x_e'] \\
+        &\leq O(\log^3 n) \tau \dfrac{4}{k} \alpha x_e\\
+        & = \dfrac{O(\log^4 n)\tau}{k} x_e
+\end{align}
+So now, bounding the optimum, we get
+\begin{align}
+\textbf{E}[c(H)] &= \sum_{e \in E} c(x_e)\textbf{E}[X_e] \\
+                 &\leq \dfrac{O(\log^4 n)\tau}{k} \sum_{e \in E} c(x_e) x_e
+\end{align}
+So when $\tau = O(\log h + k)$, we get our desired approximation.
 \end{proof}
+
+\begin{figure}
+\label{fig:roundgkronnode}
+\centering
+\includegraphics[width=\linewidth]{RoundGKRonNode.pdf}
+\caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
+\end{figure}
 
 \section{Conclusion}
 
