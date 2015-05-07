@@ -9,6 +9,7 @@
 \usepackage{amsthm}
 \usepackage{amsfonts}
 \usepackage{graphicx}
+\usepackage{clrscode4e}
 
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
@@ -170,7 +171,60 @@ We will rely on this lemma heavily. In fact, since we need $\Omega(\frac{k}{\log
 
 \section{Algorithm}
 
+Now we will combine the ideas of the linear program to approximate the survival set connectivity. We copy the algorithm as it is written in the paper below, although we will separate the algorithm into portions and explain each portion in detail.
+\begin{codebox}
+\li Set $H \leftarrow \emptyset$
+\li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
+\li Let $x' \leftarrow x*\frac{4}{k}$. 
+\li Prepare $\mathcal{D}$ be the distribution of Racke tree embeddings for $G$ with $x'$.
+\li \For $\tau$ rounds \Do
+\li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
+\li \For $q = 0, ..., 2\log n$ \Do
+\li \For $v \in V_t$ \Do
+\li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $v$
+\li \If $v$ is $q$-marked \Then
+\li Set $y^{v, q}\leftarrow 2^{q+1}y$ and $E^{v,q} \leftarrow \emptyset$.
+\li \For $\tau'$ iterations, \Do
+\li $E^{v,q} \leftarrow E^{v,q} \cup$ RoundGKR$(T_v, v, y^{v,q})$ \End
+\li $H \leftarrow H \cup \text{map}(E^{v,q})$ \End \End \End \End
+\li return $H$
+\end{codebox}
+
+In order to understand the ideas of the algorithm, it is important to understand the ideas of the analysis. We summarize the ideas of the analysis here:
+\begin{enumerate}
+\item Set a particular set of edges $F$ of size at most $\Omega(\dfrac{k}{\log n})$. 
+\item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for connectivity by claiming that the total $load$ on the edges in low. 
+\item We will condition on this probability to show that if we remove $\text{map}(F)$ on the tree, we still have sufficient flow from each $s_i$ to $t_i$. This flow must go up the tree to some common ancestor $v$ and then back down.
+\item Then we will claim that at some $v$, it gets marked and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $s_i$ and $t_i$, and so the path will be included with sufficient probability and exclude $F$.
+\item We finally union bound over all $F$ and over all $i$ to show that we succeed with constant probability. 
+\end{enumerate}
+
 \subsection{Analysis}
+
+It is straight forward to show that the cost is not too bad.
+
+\begin{lemma}
+$\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
+\end{lemma}
+This shows that if the algorithm has $\Omega(\frac{k}{\log n})$ edge-disjoint paths between each $(S_i, T_i)$ pair, then it is a polylogarithmic approximation. 
+
+\begin{proof}
+The proof follows the common strategy: we bound the probability that a given edge is included. If the probabability that a given edge is included is bounded by $O(\log^4n(\frac{\log h}{k} + 1))x_e$, then by linearity of expectation, we would show the claim.
+
+Let $(T = (V_t, E_t), y, \text{map})$ be a Racke tree sampled from $\mathcal{D}$. By line $12$ of the algorithm, for an edge $e \in H$, there needs to be some $e' \in E_t$ such that $e \in \text{map}(e')$ and $e' \in E^{v,q}$ for some $v \in V_t$ and $q$. In addition, $v$ needed to have been $q$-marked. 
+
+For each $q$ and $v$, $v$ is $q$-marked with probability at most $\frac{4}{2^{-q}}$. In any of the $\tau'$ iterations of the RoundGKR algorithm where $v$ was $q$-marked, an edge is selected with probability $2^{q+1}y_e$. 
+
+Since a given edge has $height(T)$ ancestors, it will take part in $height(T)$ possible $v$'s which can be $q$-marked. So the probability that an edge $e$ is included is at most 
+\begin{align}
+height(T) \sum_q \frac{4}{2^{-q}} 2^{q+1} y_e \tau' &= height(T) \tau' y_2 \sum_q 2 \\
+&= O(\log^3 n) y_e 
+\end{align}
+This is because $height(T) = O(\log n)$, $\tau' = O(\log n)$, and $q$ takes $O(\log n)$ possible values.
+
+So we have shown that the probability that a given edge is included in a particular sampling of a Racke tree is $O(\log^3 n) y_e$. 
+ 
+\end{proof}
 
 \section{Conclusion}
 
