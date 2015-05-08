@@ -294,7 +294,27 @@ With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16
 \end{enumerate}
 
 \begin{proof}
-We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. I will show this happens with a probability at least $\beta$. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}})$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So now we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.   
+We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. I will show this happens with a probability at least $\beta$. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}})$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So now we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.
+
+It remains to show that the probability that we find a path from $S_i$ to $T_i$ without using the edges from $F$ is at least $\beta$. We do this in the following lemma.
+\end{proof}
+
+\begin{lemma}
+Fix some $F$ and some $i$, where $|F| < \dfrac{16k}{\alpha}$. The probability that at round $t$ we find a path from $S_i$ to $T_i$ without using edges from $F$ is at least some constant $\beta > 0$. 
+\end{lemma}
+
+\begin{proof}
+We condition on the probability that $F$ is good at round $t$, which by Lemma~\ref{lem:notbad} is at least $\frac{1}{2}$. Now we can set the $y$ terms of $F_T = \text{map}^{-1}(F)$ to zero, in order to avoid picking an edge in $F$. 
+
+Since we have a good embedding with respect to $F$. The assumption was that $G$ can support a flow of at least $k$ in the original graph (by the solution to the fractional linear program). Recall that we reweighed the values $x$ by $\frac{4}{k}$, so we can support a flow of at least $4$ in the original graph with $x'$. So by Lemma~\ref{lem:mapflows}, $T$ supports a flow from $S_i' = \text{map}^{-1}(S_i)$ to $T_i' = \text{map}^{-1}(T_i)$ of value at least $4$. 
+
+Now for some reason, when we remove a total capacity of $\frac{1}{2}$, we are left with a flow of $2 - \frac{1}{2} = \frac{3}{2}$. In particular, we can support a unit flow from $S_i'$ to $T_i'$. That unit flow can be decomposed into paths $P_1, ..., P_z$, disregarding paths with very small amount of flow $(\leq \frac{1}{2n^2})$. So each path goes up from a leaf, turns at some $v$, and then goes down to another leaf. Let $\phi_v$ be the flow turning at $v$. 
+
+Since we support a flow of at least $\frac{3}{2}$ and we removed paths with at most $\frac{1}{2n^2}$ flow, we are left with
+\[ \phi_v \geq \frac{3}{2} - \dfrac{1}{2n^2}|E_T] \geq 1 \]
+Now $\phi_v$ falls between some $(2^{-q_v-1}, 2^{-q_v}]$ for some $q_v \in \{0, ..., 2\log_2 n\}$. Now the probability that none of the $v \in V_T$ is $q$-marked exactly at $q_v$ when we have a good embedding is at most $e^{-3/4}$ which follows by a Chernoff bound. So conditioning on this happening, the path gets multiplied by $2^{q_v+1}$ and so it supports a flow of $1$. Now Lemma~\ref{lem:findpath} says the path will be included with probability at least $1 - (1 - \Omega(1/\log n))^{\tau'}$. If we let $\tau' = O(\log n)$, then we get any constant probability $\epsilon$. Since we need to find both paths from the root to both leaves, we get a failure probability of $2\epsilon$.
+
+So the probability that we find a path outside of $F$ is at least one minus the union bound over failure probabilities. This is $1 - \frac{1}{2} - e^{-3/4} - 2\epsilon > 0$. 
 \end{proof}
 
 \section{Conclusion}
