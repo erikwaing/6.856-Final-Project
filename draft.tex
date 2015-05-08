@@ -190,15 +190,6 @@ Now we will combine the ideas of the linear program to approximate the survival 
 \li return $H$
 \end{codebox}
 
-In order to understand the ideas of the algorithm, it is important to understand the ideas of the analysis. We summarize the ideas of the analysis here:
-\begin{enumerate}
-\item Set a particular set of edges $F$ of size at most $\Omega(\dfrac{k}{\log n})$. 
-\item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for connectivity by claiming that the total $load$ on the edges in low. 
-\item We will condition on this probability to show that if we remove $\text{map}(F)$ on the tree, we still have sufficient flow from each $s_i$ to $t_i$. This flow must go up the tree to some common ancestor $v$ and then back down.
-\item Then we will claim that at some $v$, it gets marked and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $s_i$ and $t_i$, and so the path will be included with sufficient probability and exclude $F$.
-\item We finally union bound over all $F$ and over all $i$ to show that we succeed with constant probability. 
-\end{enumerate}
-
 \subsection{Analysis}
 
 It is straight forward to show that the cost is not too bad.
@@ -250,6 +241,61 @@ So when $\tau = O(\log h + k)$, we get our desired approximation.
 \includegraphics[width=\linewidth]{RoundGKRonNode.pdf}
 \caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
 \end{figure}
+
+Having established that the expected cost is only polylogarithmic away from the optimum, it remains to show that the edges chosen do in fact form a graph which connects $(S_i, T_i)$ with $\Omega(\frac{k}{\log n})$ disjoint paths for each $i$. 
+
+\begin{definition}
+For some set of edges $F \subset E$, the sampled tree embedding, $(T, y, \text{map})$ is bad if $F_T = \text{map}^{-1}(F)$ 
+\[ \sum_{e' \in F_T} y_{e'} \geq \frac{1}{2} \]
+And good otherwise.
+\end{definition}
+
+Intuitively, bad sets correspond to sets which are necessary in the graph. We want graphs to be good with respect to sets of size $\Omega(\frac{k}{\log n})$ in order to ensure connectivity.
+
+\begin{lemma}
+\label{lem:notbad}
+Fix some $F$, or size at most $\dfrac{k}{16 \alpha}$. Then the probability that a sampled tree embedding $(T, y, \text{map})$ from $\mathcal{D}$ is bad is at most $\frac{1}{2}$. 
+\end{lemma} 
+
+\begin{proof}
+Suppose we have a bad embedding for the set $F$. Then 
+\begin{align}
+\sum_{e \in F} load(e)&= \sum_{e \in F} \sum_{e' \in \text{map}^{-1}(e)} y_{e'} \\
+                    &\geq \sum_{e' \in F_T} y_{e'} \\
+                    &\geq \frac{1}{2}
+\end{align}
+Where the first inequality we get from taking the sum over the union versus the disjoint union, and the second inequality from the assumption that the tree embedding is bad. 
+
+Therefore, a bad tree means that the load of the set of $F$ is more than $\frac{1}{2}$. Therefore,
+\begin{align}
+Pr[\text{pick a bad tree for $F$}] &\leq Pr[ \sum_{e\in F} load(e) \geq \frac{1}{2}]
+\end{align}
+From Lemma~\ref{lem:rload}, we know that
+\begin{align}
+\textbf{E}[ \sum_{e \in F} load(e) ] &\leq \sum_{e \in F} \textbf{E}[rload(e)]x_{e'} \\
+                                   & \leq \sum_{e\in F} \alpha \frac{4}{k} x_{e} \\
+                                   & \leq \dfrac{4\alpha}{k} |F| \\
+                                   &\leq \frac{1}{4}
+\end{align}
+Since we limited the size of $F$. Now invoking Markov's inequality, we know that the probability of bad event is at most $\frac{1}{2}$. 
+\end{proof}
+
+\begin{lemma}
+With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16\alpha} + 1$ edge connected in $H$. 
+\end{lemma}
+
+\textbf{Proof Idea}:
+\begin{enumerate}
+\item Set a particular set of edges $F$ of size at most $\Omega(\dfrac{k}{\log n})$. 
+\item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for connectivity by claiming that the total $load$ on the edges in low. (This is Lemma~\ref{lem:notbad}). 
+\item We will condition on this probability to show that if we remove $\text{map}(F)$ on the tree, we still have sufficient flow from each $s_i$ to $t_i$. This flow must go up the tree to some common ancestor $v$ and then back down.
+\item Then we will claim that at some $v$, it gets marked and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $s_i$ and $t_i$, and so the path will be included with sufficient probability and exclude $F$.
+\item We finally union bound over all $F$ and over all $i$ to show that we succeed with constant probability. 
+\end{enumerate}
+
+\begin{proof}
+We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. I will show this happens with a probability at least $\beta$. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}})$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So now we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.   
+\end{proof}
 
 \section{Conclusion}
 
