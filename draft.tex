@@ -80,16 +80,16 @@ A tree embedding of a weighted graph $G = (V, E)$ will be a tree $T = (V_T, E_T)
 In other words, vertices map to vertices and edges map to edges. We will usually refer to an embedding as $(T, y, \text{map})$. 
 \end{definition}
 
-\subsection{Racke Tree Black Box}
+\subsection{R\"{a}cke Tree Black Box}
 
-We will use a particular type of tree embedding which will allow us to paths in the tree to paths in the graph. 
+We will use a particular type of tree embedding which will allow us to map paths in the tree to paths in the graph. 
 
 \begin{definition}
-For a given graph $G = (V, E)$, a Racke Tree is a tree embedding of $G$, $(T, y, \text{map})$ such that:
+For a given graph $G = (V, E)$, a R\"{a}cke's Tree embedding is a triple of the form $(T,y,\mathrm{map})$ where $T = (V_T,E_T)$ is a rooted tree, $y$ is a capacity function on the edges $E_T$ of $T$, and $\mathrm{map}$ is a function $V_T \cup E_T \to V \cup 2^E$ satisfying the following properties:
 \begin{enumerate}
-\item $\text{map}$ restricted to the leafs of $T$ is a bijection with the vertices of $G$.
-\item For each edge $e \in E_t$ joining $u$ and $v$, $\text{map}(e)$ is a path joining nodes $\text{map}(u)$ and $\text{map}(v)$.
-\item For some edge $e \in E_t$, $y_e$ (the cost of the edge) is a special quantity. Removing $y_e$ cuts the tree into two components, and so the leaves in the two components form a cut $\delta(S)$. Figure~\ref{fig:rackecut} gives an example for one such cut induced by an edge.
+\item $\mathrm{map}$ restricted to the leaves of $T$ is a bijection with the vertices of $G$. In other words, each leaf of the tree $T$ is in one-to-one correspondence with a vertex of the original graph, $G$.
+\item For each edge $e \in E_T$ joining $u$ and $v$, $\text{map}(e)$ is a path joining nodes $\text{map}(u)$ and $\mathrm{map}(v)$.
+\item For some edge $e \in E_T$, $y_e$ (the cost of the edge) is a special quantity. Removing $y_e$ cuts the tree into two components, and so the leaves in the two components form a cut $\delta(S)$. Figure~\ref{fig:rackecut} gives an example for one such cut induced by an edge.
 \begin{align}
 y_e &= \sum_{e' \in \delta(S)} x_e
 \end{align}
