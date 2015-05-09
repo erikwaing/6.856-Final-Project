@@ -67,18 +67,18 @@ The linear programming relaxation to the above program will be the first step of
 
 \section{Tree Embeddings}
 
-The next tool we will need are tree embeddings. We have seen metric embeddings in class. Basically, we had a desired type of object $O$ (in the case of cuts, we had a metric space corresponding to a cut) what we did was come up with a metric space $(X, d)$ and a map $f: (X, d) \rightarrow O$ such that the map satisfied certain properties on the distances. 
-
-Here we will have a similar goal. We want to understand minimum cost weighted graphs, but since analyzing them is hard, we instead study minimum cost weighted trees, and then we map the trees back to the graphs. 
-
-\begin{definition}
-A tree embedding of a weighted graph $G = (V, E)$ will be a tree $T = (V_T, E_T)$ with weights $y: E \rightarrow \mathbb{R}^{\geq 0}$ and a function $\text{map} : V_T \cup E_t \rightarrow V \cup P(E)$ ($P(E)$ is the power set of $E$) such that
-\begin{align}
-\text{map}(V_t) &\subset V \\
-\text{map}(E_t) &\subset E
-\end{align}
-In other words, vertices map to vertices and edges map to edges. We will usually refer to an embedding as $(T, y, \text{map})$. 
-\end{definition}
+%The next tool we will need are tree embeddings. We have seen metric embeddings in class. Basically, we had a desired type of object $O$ (in the case of cuts, we had a metric space corresponding to a cut) what we did was come up with a metric space $(X, d)$ and a map $f: (X, d) \rightarrow O$ such that the map satisfied certain properties on the distances. 
+%
+%Here we will have a similar goal. We want to understand minimum cost weighted graphs, but since analyzing them is hard, we instead study minimum cost weighted trees, and then we map the trees back to the graphs. 
+%
+%\begin{definition}
+%A tree embedding of a weighted graph $G = (V, E)$ will be a tree $T = (V_T, E_T)$ with weights $y: E \rightarrow \mathbb{R}^{\geq 0}$ and a function $\text{map} : V_T \cup E_t \rightarrow V \cup P(E)$ ($P(E)$ is the power set of $E$) such that
+%\begin{align}
+%\text{map}(V_t) &\subset V \\
+%\text{map}(E_t) &\subset E
+%\end{align}
+%In other words, vertices map to vertices and edges map to edges. We will usually refer to an embedding as $(T, y, \text{map})$. 
+%\end{definition}
 
 \subsection{R\"{a}cke's Trees}
 
@@ -156,17 +156,24 @@ The height of the trees sampled is $O(\log nC)$, where $C$ is the ratio of the l
 
 \subsection{RoundGKR Black Box}
 
-The RoundGKR algorithm is an algorithm to rounding algorithm used for the Group Steiner Tree problem. We first describe the problem and give the algorithm. \\
+The RoundGKR algorithm is a rounding procedure used to solve the Group Steiner Tree (GST) problem. The problem it stated as follows. \\
 
 Group Steiner Tree:
 \begin{quote}
-\textbf{Input}: A rooted tree $T = (V_t, E_t)$ at $r$ with costs $c: E_t \rightarrow \mathbb{R}^{\geq 0}$ as well as subsets of vertices $\{ T_i \}$. \\
-\textbf{Output}: A minimum cost subtree $H \subset T$ with a path from $r$ to $t_i$ for some $t \in T_i$ for all $i$.
+\textbf{Input}: A tree $T = (V_T, E_T)$ rooted at $r$ where each edge has a nonnegative real value cost $c(e)$, along with a set $\{T_i\}$ where each $T_i \subseteq V_T$.\\
+\textbf{Output}: The minimum cost subtree $H \subseteq T$ with a path from $r$ to $t_i$ for some $t \in T_i$ for all $i$.
 \end{quote}
 
-A similar linear program produces a fractional solution, and the algorith RoundGKR is a way of rounding the solution back. The optimum to the linear program will be a set of values for each edge $y_e \in [0, 1]$. Since we are in a tree setting and we are looking for paths from the root, we can assume that $y_{p(e)} \geq y_e$ (parent edges are always greater).
+The following integer linear program solves the problem exactly:\\
+GST-ILP:
+\begin{align}
+\min & \sum c(e) y_e  \\
+\text{ s.t } & \sum_{e \in \delta(S)} y_e \geq 1, \text{ where } S_i \subset S, T_i \subset V - S, \delta(S) \text{ is the edges of the $S$ cut }
+\end{align}
 
-The RoundGKR is simple, it starts at the root and makes its way down the tree as its being built. It includes the edge $e$ in the subtree with probability $\frac{y_e}{y_{p(e)}}$. A simple inductive argment shows that an edge $e$ is chosen with probability $y_e$. This is because $Pr[\text{include $e$}] = Pr[\text{include $e$ $|$ include $p(e)$}]*Pr[\text{include $p(e)$}] = y_e$ (if we don't include $p(e)$, then we don't include $e$. 
+If we relax the integer linear program to a linear program and solve it, we can use RoundGKR to round the resulting fractional solution to an integer solution. The optimum to the linear program will assign fractional values in $[0,1]$ to each $y_e$. For any $e$, let $p(e)$ denote its parent edge (if it exists). We claim that since our problem is to find a subtree that includes the root $r$, edges that are closer to the root are at least as likely to be included in the subtree than edges farther from the root. Since the value of $y_e$ will be used as the probability that edge $e$ is included in $H$, we will assume that $y_{p(e)} \geq y_e$. 
+
+The RoundGKR procedure simply starts at the root $r$ and builds the subtree $H$ by working its way down the original tree, $T$. It decides whether or not to include edge $e$ only once it has included edge $p(e)$ (if ever). At this step, it includes $e$ with probability $\frac{y_e}{y_{p(e)}}$. A simple inductive argment shows that an edge $e$ is chosen with probability $y_e$ (proof sketch: assume by induction that we know $Pr[\text{include $p(e)$}] = y_{p(e)}$. Then $Pr[\text{include $e$}] = Pr[\text{include $e$ $|$ include $p(e)$}]*Pr[\text{include $p(e)$}] = \frac{y_e}{y_{p(e)}}y_{p(e)} = y_e$.)
 
 The important property of the algorithm can be summarized in the following lemma, whose proof we refer to [CITE].
 
