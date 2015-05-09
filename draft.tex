@@ -91,13 +91,15 @@ For a given graph $G = (V, E)$, a R\"{a}cke's Tree embedding is a triple of the 
 \item Furthermore, $\mathrm{map}$ restricted to the leaves of $T$ is a bijection with the vertices of $G$. In other words, each leaf of the tree $T$ is in one-to-one correspondence with a vertex of the original graph, $G$.
 \item For each edge $e = (u,v) \in E_T$, $\mathrm{map}(e)$ is a set of edges that form a path between $\mathrm{map}(u)$ and $\mathrm{map}(v)$. Note that $\mathrm{map}(u)$ and $\mathrm{map}(v)$ are vertices in $G$, so $\mathrm{map}(e)$ specifies a set of edges in $G$.
 %\item For some edge $e \in E_T$, $y_e$ (the cost of the edge) is a special quantity. Removing $y_e$ cuts the tree into two components, and so the leaves in the two components form a cut $\delta(S)$. Figure~\ref{fig:rackecut} gives an example for one such cut induced by an edge.
-\begin{align}
-y_e &= \sum_{e' \in \delta(S)} x_e
-\end{align}
+%\begin{align}
+%y_e &= \sum_{e' \in \delta(S)} x_e
+%\end{align}
 \end{enumerate}
 \end{definition}
 
-To summarize, the $\mathrm{map}$ function sends vertices in $V_T$ to vertices in $V$, and sends edges in $T$ to paths in $G$. With these definitions, we can consider the inverse function $\mathrm{map}^{-1}$. Note that multiple vertices in $T$ could map to the same vertex in $V$, so we must specify that for $v \in G$, the value of $\mathrm{map}^{-1}(v)$ is the unique \emph{leaf} vertex in $V_T$ that maps to $v$. We will also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and define it in the obvious way: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
+With this setup, we can try to define the inverse function, $\mathrm{map}^{-1}$. If we try to compute $\mathrm{map}^{-1}(v)$ for some $v \in V$, we note that multiple vertices in $T$ could map to $v$. Thus, we specify that $\mathrm{map}^{-1}(v)$ be the unique \emph{leaf} vertex in $V_T$ that maps to $v$. We will also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and we define it in the obvious way: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
+
+For edges $e = (u,v) \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f)$ that contain $e$. Again, this defintiion can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
 
 \begin{figure}
 \centering
@@ -105,8 +107,6 @@ To summarize, the $\mathrm{map}$ function sends vertices in $V_T$ to vertices in
 \includegraphics[width=0.5\linewidth]{Rackecut.pdf}
 \caption{Racke tree cut induced by an edge in the tree.}
 \end{figure}
-
-Having made these definition, we can refer to the inverse $\text{map}^{-1}$ in the obvious manner. $\text{map}^{-1}$ on a vertex will map to the corresponding leaf, and $\text{map}^{-1}$ on an edge in the graph will map to all edges in the tree whose paths contain that edge. 
 
 \begin{definition}
 Given a Racke tree, the load on an edge of the graph $e \in E$ is
