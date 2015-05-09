@@ -85,7 +85,7 @@ In other words, vertices map to vertices and edges map to edges. We will usually
 We will use a particular type of tree embedding which will allow us to map paths in the tree to paths in the graph. 
 
 \begin{definition}
-For a given graph $G = (V, E)$, a R\"{a}cke's Tree embedding is a triple of the form $(T,y,\mathrm{map})$ where $T = (V_T,E_T)$ is a rooted tree, $y$ is a capacity function on the edges $E_T$ of $T$, and $\mathrm{map}$ is a function $V_T \cup E_T \to V \cup 2^E$ satisfying the following properties:
+For a given graph $G = (V, E)$ with edge capacities $x_e \geq 0$, $e \in E$, a R\"{a}cke's Tree embedding is a triple of the form $(T,y,\mathrm{map})$ where $T = (V_T,E_T)$ is a rooted tree, $y$ is a capacity function on the edges $E_T$ of $T$, and $\mathrm{map}$ is a function $V_T \cup E_T \to V \cup 2^E$ satisfying the following properties:
 \begin{enumerate}
 \item For each node $v \in V_T$, $\mathrm{map}(v) \in V$. Thus, the $\mathrm{map}$ function maps nodes in the tree $T$ to nodes in the original graph, $G$.
 \item Furthermore, $\mathrm{map}$ restricted to the leaves of $T$ is a bijection with the vertices of $G$. In other words, each leaf of the tree $T$ is in one-to-one correspondence with a vertex of the original graph, $G$.
@@ -97,25 +97,28 @@ For a given graph $G = (V, E)$, a R\"{a}cke's Tree embedding is a triple of the 
 \end{enumerate}
 \end{definition}
 
-With this setup, we can try to define the inverse function, $\mathrm{map}^{-1}$. If we try to compute $\mathrm{map}^{-1}(v)$ for some $v \in V$, we note that multiple vertices in $T$ could map to $v$. Thus, we specify that $\mathrm{map}^{-1}(v)$ be the unique \emph{leaf} vertex in $V_T$ that maps to $v$. We will also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and we define it in the obvious way: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
+With this setup, we can define the inverse function, $\mathrm{map}^{-1}$. If we try to compute $\mathrm{map}^{-1}(v)$ for some $v \in V$, we note that multiple vertices in $T$ could map to $v$. Thus, we specify that $\mathrm{map}^{-1}(v)$ be the unique \emph{leaf} vertex in $V_T$ that maps to $v$. We will also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and we define it in the obvious way: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
 
 For edges $e = (u,v) \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f)$ that contain $e$. Again, this defintiion can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
 
-Finally, we for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected component, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_e$.
+Finally, for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected component, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_{e'}$, the total edge capacity crossing the cut.
 
 \begin{figure}
 \centering
 \label{fig:rackecut}
 \includegraphics[width=0.5\linewidth]{Rackecut.pdf}
-\caption{Racke tree cut induced by an edge in the tree.}
+\caption{R\"{a}cke's tree cut induced by an edge in the tree.}
 \end{figure}
 
 \begin{definition}
-Given a Racke tree, the load on an edge of the graph $e \in E$ is
+Given a R\"{a}cke tree, the load on an edge of the graph $e \in E$ is
 \begin{align}
-load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f
+load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f,
 \end{align}
-The relative load, $rload(e) = \dfrac{load(e)}{x_e}$. 
+and the relative load is defined as 
+\begin{align}
+rload(e) = \dfrac{load(e)}{x_e}.
+\end{align}
 \end{definition}
 
 Figure~\ref{fig:racketree} gives an example of a Racke tree with the mapping. Each red vertex of the tree is mapped to another red vertex on the graph, and the edge between them corresponds to a path between the red vertices. This gives us a simple way to map flows from Racke trees to the graph and vice-versa. 
