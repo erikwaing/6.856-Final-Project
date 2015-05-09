@@ -175,7 +175,7 @@ If we relax the integer linear program to a linear program and solve it, we can 
 
 The RoundGKR procedure simply starts at the root $r$ and builds the subtree $H$ by working its way down the original tree, $T$. It decides whether or not to include edge $e$ only once it has included edge $p(e)$ (if ever). At this step, it includes $e$ with probability $\frac{y_e}{y_{p(e)}}$. A simple inductive argment shows that an edge $e$ is chosen with probability $y_e$ (proof sketch: assume by induction that we know $Pr[\text{include $p(e)$}] = y_{p(e)}$. Then $Pr[\text{include $e$}] = Pr[\text{include $e$ $|$ include $p(e)$}]*Pr[\text{include $p(e)$}] = \frac{y_e}{y_{p(e)}}y_{p(e)} = y_e$.)
 
-The important property of the algorithm can be summarized in the following lemma, whose proof we refer to [CITE].
+The important property of the algorithm can be summarized in the following lemma, whose proof can be found in [CITE].
 
 \begin{lemma}
 \label{lem:findpath}
