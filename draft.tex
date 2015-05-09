@@ -101,7 +101,7 @@ With this setup, we can define the inverse function, $\mathrm{map}^{-1}$. If we 
 
 For edges $e = (u,v) \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f)$ that contain $e$. Again, this defintiion can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
 
-Finally, for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected component, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_{e'}$, the total edge capacity crossing the cut.
+Finally, for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected components, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_{e'}$, the total edge capacity crossing the cut.
 
 \begin{figure}
 \centering
@@ -121,11 +121,11 @@ rload(e) = \dfrac{load(e)}{x_e}.
 \end{align}
 \end{definition}
 
-Figure~\ref{fig:racketree} gives an example of a Racke tree with the mapping. Each red vertex of the tree is mapped to another red vertex on the graph, and the edge between them corresponds to a path between the red vertices. This gives us a simple way to map flows from Racke trees to the graph and vice-versa. 
+The usefulness of R\"{a}cke's trees becomes apparent when we consider multi-commodity flows. Recall that the multi-commodity flow problem specifies $k$ different commodities, where each commodity $i$ must be routed from source $s_i$ to sink $t_i$, subject to constraints on the capacity of each edge. The resulting flow can be represented as a set of functions $\{ f_i \}$, where $f_i(e)$ is the nonnegative real number amount of commodity $i$ flowing on edge $e$. 
 
-In particular, if we have a multicommodity flow $\{ f_i \}$ on the graph, then we can easily map into a multicommodity flow on the Racke tree. If there is a flow $f_i$ from $s_i$ to $t_i$, then we find leaves $s_i^{T}=\text{map}^{-1}(s_i)$ and $t_i^T\text{map}^{-1}(t_i)$ and route $f_i$ units of flow through the unique path from $s_i$ to $t_i$.
+There is a natural way to map multi-commodity flows between $G$ and $T$. In particular, suppose we have a multi-commodity flow $\{ f_i \}$ on $G$. For each $i$, if there are $f_i$ units of flow going from $s_i$ to $t_i$ in $G$, we route $f_i$ units of flow in the $T$ from $\mathrm{map}^{-1}(s_i)$ to $\mathrm{map}^{-1}(t_i)$. If we are given a multicommodity flow $\{ f_i^T \}$ in $T$, then if we have $f_i^T(e)$ units of flow on edge $e$ in $T$, then we route $f_i^T(e)$ units of flow through the path $\mathrm{map}(e)$ in $G$ (recall that edges in $T$ map to paths in $G$).
 
-For obtaining a flow on the graph given one on the Racke tree, if $f_i^T(e)$ is the flow of commodity $i$ on the tree on $e \in E_t$, then we route $f_i^T(e)$ units of flow down the path given by $\text{map}(e)$.   
+Figure~\ref{fig:racketree} gives an example of the flow correspondnece between a graph and it's associated R\"{a}cke's tree. Each red vertex of the tree is mapped to another red vertex on the graph, and the edge between them corresponds to a path between the red vertices. This gives us a simple way to map flows from Racke trees to the graph and vice-versa. 
 
 \begin{figure}
 \label{fig:racketree}
