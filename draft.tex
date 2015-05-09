@@ -101,6 +101,8 @@ With this setup, we can try to define the inverse function, $\mathrm{map}^{-1}$.
 
 For edges $e = (u,v) \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f)$ that contain $e$. Again, this defintiion can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
 
+Finally, we for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected component, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_e$.
+
 \begin{figure}
 \centering
 \label{fig:rackecut}
