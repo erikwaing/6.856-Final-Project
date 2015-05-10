@@ -32,17 +32,19 @@ In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be co
 \textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
-Note that this problem generalizes the common connectivity problems. The question of whether there are $k$ connections between $s$ and $t$ sets only one pair $(S_1, T_1)$ where $S_1 = \{ s \}$ and $T_i = \{ t \}$. 
+Unfortunately, solving exact Survivable Set Connectivity is $\mathsf{NP}$-hard [CITATION]. Therefore, the focus of this paper is on an approximate solution to a relaxation of this problem. Instead of requiring at least $k$ edge-disjoint paths between each pair, we require that each pair have at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths. With this relaxation, it is possible to find a subgraph with cost $O(polylog(n)$ times the optimum. 
 
-[ GIVE MORE EXAMPLES HERE ]
-
-As with many of these kinds of problems, SSC is $\mathsf{NP}$-hard. The common route taken in 6.856 has been to find polynomial time algorithms for approximations; however, in the case with SSC, it is $\mathsf{NP}$-hard to achieve a polylogarithmic approximation. 
-
-Another possible approach is therefore to relax the question. Instead of requiring at least $k$ edge-disjoint paths, we will allow some sets to have less than $k$ paths, but not too much less. We will present an approximation algorithm which outputs a subgraph of cost $O(polylog(n))$ times the optimum such that for each $(S_i, T_i)$ pairs, there are at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths between $S_i$ and $T_i$. 
-
-The approximation algorithm will follow the usual approach to approximation algorithms of this kind. We will first write the problem as an integer linear program, we solve the linear programming relaxation, and then we round the solution. 
-
-The analysis will be slightly different from the analysis shown in class. Usually, our randomized algorithm will return a feasible solution to the problem, and our analysis work is mostly to bound the cost. This was the case with max-sat, set-cover, and multi-commodity flows. In our case, we will show that the rounded solution will be close to the optimal, but we will work to show that the rounded solution is feasible. 
+The paper is organized as follows. We first present a natural integer linear programming formulation of the problem. Then, we introduce the idea of a \emph{tree embedding}, which allows us to transform arbitrary graphs $G$ into trees that can be more easily handled by the algorithm. We also show a general rounding scheme, called RoundGKR, which our algorithm uses as a black box. Finally, we combine all these concepts together to present and analyze an approximation algorithm for SSC.
+%
+%[ GIVE MORE EXAMPLES HERE ]
+%
+%As with many of these kinds of problems, SSC is $\mathsf{NP}$-hard. The common route taken in 6.856 has been to find polynomial time algorithms for approximations; however, in the case with SSC, it is $\mathsf{NP}$-hard to achieve a polylogarithmic approximation. 
+%
+%Another possible approach is therefore to relax the question. Instead of requiring at least $k$ edge-disjoint paths, we will allow some sets to have less than $k$ paths, but not too much less. We will present an approximation algorithm which outputs a subgraph of cost $O(polylog(n))$ times the optimum such that for each $(S_i, T_i)$ pairs, there are at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths between $S_i$ and $T_i$. 
+%
+%The approximation algorithm will follow the usual approach to approximation algorithms of this kind. We will first write the problem as an integer linear program, we solve the linear programming relaxation, and then we round the solution. 
+%
+%The analysis will be slightly different from the analysis shown in class. Usually, our randomized algorithm will return a feasible solution to the problem, and our analysis work is mostly to bound the cost. This was the case with max-sat, set-cover, and multi-commodity flows. In our case, we will show that the rounded solution will be close to the optimal, but we will work to show that the rounded solution is feasible. 
 
 \section{Linear Programming Formulation}
 
