@@ -10,6 +10,15 @@
 \usepackage{amsfonts}
 \usepackage{graphicx}
 \usepackage{clrscode4e}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={210mm,297mm},
+ left=20mm,
+ right=20mm,
+ top=20mm,
+ bottom=20mm,
+ }
 
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
@@ -32,7 +41,7 @@ In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be co
 \textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
-Unfortunately, solving exact Survivable Set Connectivity is $\mathsf{NP}$-hard [CITATION]. Therefore, the focus of this paper is on an approximate solution to a relaxation of this problem. Instead of requiring at least $k$ edge-disjoint paths between each pair, we require that each pair have at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths. With this relaxation, it is possible to find a subgraph with cost $O(polylog(n)$ times the optimum. 
+Unfortunately, solving exact Survivable Set Connectivity is $\mathsf{NP}$-hard [CITATION]. Therefore, the focus of this paper is on an approximate solution to a relaxation of this problem. Instead of requiring at least $k$ edge-disjoint paths between each pair, we require that each pair have at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths. With this relaxation, it is possible to find a subgraph with cost $O(polylog(n))$ times the optimum. 
 
 The paper is organized as follows. We first present a natural integer linear programming formulation of the problem. Then, we introduce the idea of a \emph{tree embedding}, which allows us to transform arbitrary graphs $G$ into trees that can be more easily handled by the algorithm. We also show a general rounding scheme, called RoundGKR, which our algorithm uses as a black box. Finally, we combine all these concepts together to present and analyze an approximation algorithm for SSC.
 %
@@ -46,26 +55,33 @@ The paper is organized as follows. We first present a natural integer linear pro
 %
 %The analysis will be slightly different from the analysis shown in class. Usually, our randomized algorithm will return a feasible solution to the problem, and our analysis work is mostly to bound the cost. This was the case with max-sat, set-cover, and multi-commodity flows. In our case, we will show that the rounded solution will be close to the optimal, but we will work to show that the rounded solution is feasible. 
 
-\section{Linear Programming Formulation}
+\section{An Integer Linear Program}
 
-We can formulate a cut-based integer linear program for SSC. For each edge, we have the variable $x_e$ defined as
+In this section, we give an integer linear program that exactly solves SSC. Recall that the goal is to output a subgraph $H$ of $G$ such that each $(S_i,T_i)$ pair has at least $k$ edge disjoint paths. Naturally, we create an indicator variable $x_e$ for each edge based on whether or not it is included in $H$. 
 \begin{align}
  x_e &= \left\{ \begin{array}{cc} 1 & e \in H \\
                                   0 & \text{ otherwise. } \end{array} \right.
 \end{align}
-$H$ will be the subgraph consisting of edges $e$ where $x_e = 1$. \\ \\
+Thus, our output $H$ will be the subgraph consisting of edges $e$ where $x_e = 1$. \\ \\
+
+We claim that the following ILP captures SSC exactly. 
 SSC-LP:
 \begin{align}
 \min & \sum c(x) x_e  \\
-\text{ s.t } & \sum_{e \in \delta(S)} x_e \geq k, \text{ where } S_i \subset S, T_i \subset V - S, \delta(S) \text{ is the edges of the $S$ cut }
+\text{ s.t } & \sum_{e \in \delta(S)} x_e \geq k, \text{for each }S\text{ where } S_i \subset S,T_i \subset V - S, \\ & \hspace{1in}\delta(S) \text{ is the edges of the $S$ cut } \\
+& x_e \in [0,1] \text{ for all }e \in E
 \end{align}
-This cut-based integer linear program finds exactly $H$. To see why the constraints ensure that each $(S_i, T_i)$ pair has at least $k$ edge disjoint paths, we can look at the cuts corresponding to $S_i$ and $T_i$. First, we let $S = S_i$, then there are $k$ outgoing edges. We can choose to include one more node to $S$, following a particular outgoing edge of the cut in $H$. We can continue doing this until we reach $T_i$. This will trace out a path between $S_i$ and $T_i$. If we do this for each edge, and then we do this for each $(S_i, T_i)$ pair, we can confirm that there are in fact $k$ edge-disjoint paths between each $(S_i, T_i)$ pair. 
 
-There is one caveat that has not been addressed. We have exponentially many constraints! Since there can be exponentially many set $S$ with $S_i \subset S$ and $T_i \subset V - S$. We solve this with a similar idea to semi-definite programming, by giving a separation oracle which runs in polynomial time. 
+The objective function $\sum c(x) x_e$ simply minimizes the cost of all edges included in $H$. The constraint ensures that for all pairs $(S_i,T_i)$, any cut where $S_i$ is on one side of the cut and $T_i$ is on the other side has at least $k$ edges crossing the cut. This property holds if and only if there are $k$ edge disjoint paths from $S_i$ to $T_i$. We omit the proof of this statement, but it can be found in [CITATION].
 
-The separation oracle will just compute the minimum $S_i, T_i$ cut in the graph. What we can do is contract $S_i$ and $T_i$ to single edges, and then compute the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so we have satisfied the constraints.
+%
+%
+% 
+%This cut-based integer linear program finds exactly $H$. To see why the constraints ensure that each $(S_i, T_i)$ pair has at least $k$ edge disjoint paths, we can look at the cuts corresponding to $S_i$ and $T_i$. First, we let $S = S_i$, then there are $k$ outgoing edges. We can choose to include one more node to $S$, following a particular outgoing edge of the cut in $H$. We can continue doing this until we reach $T_i$. This will trace out a path between $S_i$ and $T_i$. If we do this for each edge, and then we do this for each $(S_i, T_i)$ pair, we can confirm that there are in fact $k$ edge-disjoint paths between each $(S_i, T_i)$ pair. 
 
-The linear programming relaxation to the above program will be the first step of the algorithm. The remaining work will be rounding the fractional solution to an integral solution and satisfy the constraints. 
+Of course, since this is an integer linear program, we must relax it to fractional solutions in order to solve it. Thus, we relax the constraint of $x_e \in [0,1]$ to $0 \leq x_e \leq 1$. However, there is still a slight issue; there can be exponentially many constraints. This is because there are exponentially many choices of $S$ for each $(S_i,T_i)$ pair. To get around this issue, we note that the ellipsoid algorithm can handle linear programs with arbitrarily many constraints, as long as it is given a separation oracle. Luckily, we can give such an oracle. 
+
+The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. What we can do is contract $S_i$ and $T_i$ to single vertices, and then compute the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so we have satisfied the constraints.
 
 \section{Tree Embeddings}
 
