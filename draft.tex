@@ -41,9 +41,9 @@ In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be co
 \textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
-Unfortunately, solving exact Survivable Set Connectivity is $\mathsf{NP}$-hard [CITATION]. Therefore, the focus of this paper is on an approximate solution to a relaxation of this problem. Instead of requiring at least $k$ edge-disjoint paths between each pair, we require that each pair have at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths. With this relaxation, it is possible to find a subgraph with cost $O(polylog(n))$ times the optimum. 
+Unfortunately, solving exact Survivable Set Connectivity is $\mathsf{NP}$-hard \cite{ssc}. Therefore, the focus of this paper is on an approximate solution to a relaxation of this problem given in \cite{ssc}. Instead of requiring at least $k$ edge-disjoint paths between each pair, we require that each pair have at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths. With this relaxation, it is possible to find a subgraph with cost $O(polylog(n))$ times the optimum.
 
-The paper is organized as follows. We first present a natural integer linear programming formulation of the problem. Then, we introduce the idea of a \emph{tree embedding}, which allows us to transform arbitrary graphs $G$ into trees that can be more easily handled by the algorithm. We also show a general rounding scheme, called RoundGKR, which our algorithm uses as a black box. Finally, we combine all these concepts together to present and analyze an approximation algorithm for SSC.
+The paper is organized as follows. We first present a natural integer linear programming formulation of the problem. Then, we introduce the idea of a \emph{tree embedding}, which allows us to transform arbitrary graphs $G$ into trees that can be more easily handled by the algorithm. We also show a general rounding scheme, called RoundGKR, which our algorithm uses as a black box. Finally, we combine all these concepts together to present and analyze an approximation algorithm for SSC. 
 %
 %[ GIVE MORE EXAMPLES HERE ]
 %
@@ -72,8 +72,7 @@ SSC-LP:
 & x_e \in [0,1] \text{ for all }e \in E
 \end{align}
 
-The objective function $\sum c(x) x_e$ simply minimizes the cost of all edges included in $H$. The constraint ensures that for all pairs $(S_i,T_i)$, any cut where $S_i$ is on one side of the cut and $T_i$ is on the other side has at least $k$ edges crossing the cut. This property holds if and only if there are $k$ edge disjoint paths from $S_i$ to $T_i$. We omit the proof of this statement, but it can be found in [CITATION].
-
+The objective function $\sum c(x) x_e$ simply minimizes the cost of all edges included in $H$. The constraint ensures that for all pairs $(S_i,T_i)$, any cut where $S_i$ is on one side of the cut and $T_i$ is on the other side has at least $k$ edges crossing the cut. This property holds if and only if there are $k$ edge disjoint paths from $S_i$ to $T_i$. 
 %
 %
 % 
@@ -100,7 +99,7 @@ The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. Wha
 
 \subsection{R\"{a}cke's Trees}
 
-We will use a particular type of tree embedding which will allow us to map paths in the tree to paths in the graph. 
+We will use a particular type of tree embedding given in \cite{racke} which will allow us to map paths in the tree to paths in the graph.
 
 \begin{definition}
 For a given graph $G = (V, E)$ with edge capacities $x_e \geq 0$, $e \in E$, a R\"{a}cke's Tree embedding is a triple of the form $(T,y,\mathrm{map})$ where $T = (V_T,E_T)$ is a rooted tree, $y$ is a capacity function on the edges $E_T$ of $T$, and $\mathrm{map}$ is a function $V_T \cup E_T \to V \cup 2^E$ satisfying the following properties:
@@ -148,18 +147,18 @@ Figure~\ref{fig:racketree} gives an example of the flow correspondence between a
 \begin{figure}
 \label{fig:racketree}
 \centering
-\includegraphics[width=\linewidth]{Rackeembeddinggraph.pdf}
+\includegraphics[width=0.8\linewidth]{Rackeembeddinggraph.pdf}
 \caption{Example Racke Tree where red nodes are mapped and edge maps to a path.}
 \end{figure}
 
 There are some crucial properties of Racke trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to [CITE] for the proofs.
 
-\begin{lemma}
+\begin{lemma}[\cite{racke}]
 \label{lem:mapflows}
 If we have a graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\geq 0}$ and a Racke tree $(T, y, \text{map})$. A multicommodity flow on $G$, $\{ f_i \}$, maps directly to a multicommodity flow on the tree which is also feasible. Likewise, a multicommodity flow on $T$ maps directly into a multicommodity flow on the graph, with the small caveat that we must multiply the capacity of the edge by the relative load. 
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma}[\cite{racke}]
 \label{lem:rload}
 For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\geq 0}$, we can sample efficiently from Racke trees of $G$, such that 
 \begin{align}
@@ -167,14 +166,14 @@ For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\
 \end{align}
 \end{lemma}
 
-\begin{lemma}
+\begin{lemma}[\cite{ssc}]
 \label{thm:height}
 The height of the trees sampled is $O(\log nC)$, where $C$ is the ratio of the largest to smallest capacity in $G$. In our cases, the height will always be $O(\log n)$. 
 \end{lemma}
 
 \subsection{RoundGKR Black Box}
 
-The RoundGKR algorithm is a rounding procedure used to solve the Group Steiner Tree (GST) problem. The problem it stated as follows. \\
+The RoundGKR algorithm is a rounding procedure used to solve the Group Steiner Tree (GST) problem \cite{GKR}. The problem it stated as follows. \\
 
 Group Steiner Tree:
 \begin{quote}
@@ -195,7 +194,7 @@ The RoundGKR procedure simply starts at the root $r$ and builds the subtree $H$ 
 
 The important property of the algorithm can be summarized in the following lemma, whose proof can be found in [CITE].
 
-\begin{lemma}
+\begin{lemma}[\cite{GKR}]
 \label{lem:findpath}
 Suppose that $T = (V_t, E_t)$ support a flow of at least $1$ from $T_i$ to the root $r$ without the edges $F_t$. Then the RoundGKR returns a solution with a path in $T$ from $T_i$ to $r$ without using $F_t$ with probability at least $\Omega(\frac{1}{\log n})$. 
 \end{lemma}
@@ -227,7 +226,7 @@ Now we will combine the ideas of the linear program to approximate the survival 
 
 It is straight forward to show that the cost is not too bad.
 
-\begin{lemma}
+\begin{lemma}[\cite{ssc}]
 $\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
 \end{lemma}
 This shows that if the algorithm has $\Omega(\frac{k}{\log n})$ edge-disjoint paths between each $(S_i, T_i)$ pair, then it is a polylogarithmic approximation. 
@@ -271,7 +270,7 @@ So when $\tau = O(\log h + k)$, we get our desired approximation.
 \begin{figure}
 \label{fig:roundgkronnode}
 \centering
-\includegraphics[width=\linewidth]{RoundGKRonNode.pdf}
+\includegraphics[width=0.6\linewidth]{RoundGKRonNode.pdf}
 \caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
 \end{figure}
 
@@ -285,7 +284,7 @@ And good otherwise.
 
 Intuitively, bad sets correspond to sets which are necessary in the graph. We want graphs to be good with respect to sets of size $\Omega(\frac{k}{\log n})$ in order to ensure connectivity.
 
-\begin{lemma}
+\begin{lemma}[\cite{ssc}]
 \label{lem:notbad}
 Fix some $F$, or size at most $\dfrac{k}{16 \alpha}$. Then the probability that a sampled tree embedding $(T, y, \text{map})$ from $\mathcal{D}$ is bad is at most $\frac{1}{2}$. 
 \end{lemma} 
@@ -313,7 +312,7 @@ From Lemma~\ref{lem:rload}, we know that
 Since we limited the size of $F$. Now invoking Markov's inequality, we know that the probability of bad event is at most $\frac{1}{2}$. 
 \end{proof}
 
-\begin{lemma}
+\begin{lemma}[\cite{ssc}]
 With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16\alpha} + 1$ edge connected in $H$. 
 \end{lemma}
 
@@ -353,5 +352,8 @@ So the probability that we find a path outside of $F$ is at least one minus the 
 \section{Conclusion}
 
 \subsection{Open Problems}
+
+\bibliography{references}
+\bibliographystyle{splncs}
 
 \end{document}
