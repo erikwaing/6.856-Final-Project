@@ -222,6 +222,18 @@ Now we will combine the ideas of the linear program to approximate the survival 
 \li return $H$
 \end{codebox}
 
+\subsection{Algorithm Idea}
+
+Here, we provide an intuitive explanation of the algorithm as well as the main motivations for each procedure. Of course, we will revist these ideas in the analysis.
+
+After running the linear program, we rescale $x$ to $x'$ by $\frac{4}{k}$ to ensure we have a flow of at least $4$ in each pair $(S_i, T_i)$. This flow of $4$ will correspond to a flow of $4$ on the R\"{a}cke trees.
+
+The RoundGKR algorithm is the main tool used for our rounding scheme. RoundGKR guarantees find paths on trees which avoid edges will be found with probability $\Omega(\frac{1}{\log n})$ (this is Lemma~\ref{lem:findpath}) given there is sufficient flow. We repeat this $\tau' = O(\log n)$ times to assure a constant probability. 
+
+We can only run RoundGKR on trees. We introduce R\"{a}cke trees specifically for this purpose. We know a flow of $4$ exists between leaves (Lemma~\ref{lem:mapflows}). Each flow path will go up the tree to some ancestor $v$ and then back down to a leaf. One such path might be found when $v$ gets marked. One path will go to $s_i'$ and one to $t_i'$.
+
+Lemma~\ref{lem:findpath} requires us to have a flow of at least $1$ avoinding some edges. If a flow path from $s_i'$ to $t_i'$ goes through ancestor $v$ and carries a flow of value $f$, we can apply the lemma if $f \geq 1$. We scale the capacities by $2^{q+1}$ in order to search for the flow value. We only scale with probabilities $\dfrac{4}{2^q}$ so our costs does not increase by more than $O(\log n)$. Figure~\ref{fig:roundgkronnode} shows how a flow path might be found.
+
 \subsection{Analysis}
 
 It is straight forward to show that the cost is not too bad.
@@ -348,10 +360,6 @@ Now $\phi_v$ falls between some $(2^{-q_v-1}, 2^{-q_v}]$ for some $q_v \in \{0, 
 
 So the probability that we find a path outside of $F$ is at least one minus the union bound over failure probabilities. This is $1 - \frac{1}{2} - e^{-3/4} - 2\epsilon > 0$. 
 \end{proof}
-
-\section{Conclusion}
-
-\subsection{Open Problems}
 
 \bibliography{references}
 \bibliographystyle{splncs}
