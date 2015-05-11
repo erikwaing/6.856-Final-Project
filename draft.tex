@@ -268,13 +268,24 @@ height(T) \sum_{q=0}^{2\log n} \frac{4}{2^{q}} 2^{q+1} y_{e'} \tau' &= height(T)
 
 So the probability that a given edge of the tree is included in a particular sampling of a Racke tree is $O(\log^3 n) y_{e'}$. 
 
-Using this, we can bound the probability that a particular edge $e$ of the original graph is included. For $e$ to be included, on one of the $\tau$ trials, the algorithm must chose some tree edge $e'$ such that $e' \in \text{map}^{-1}(e)$ (recall that this is the set of tree edges which, if selected, result in edge $e$ being included). So let $X_e$ be the indicator random variable which says that edge $e$ is included in $H$. Then we have the inequality
+Using this, we can bound the probability that a particular edge $e$ of the original graph is included. For $e$ to be included, on one of the $\tau$ trials, the algorithm must chose some tree edge $e'$ such that $e' \in \mathrm{map}^{-1}(e)$ (recall that this is the set of tree edges which, if selected, result in edge $e$ being included). So let $X_e$ be the indicator random variable which says that edge $e$ is included in $H$. Then we have the inequality
 \begin{align}
- \textbf{E}[X_e] &\leq \tau \sum_{e' \in \text{map}^{-1}(e)} O(\log^3 n) y_{e'} 
+ \textbf{E}_{R}[X_e] &\leq \tau \sum_{e' \in \mathrm{map}^{-1}(e)} O(\log^3 n) y_{e'} 
 \end{align}
-The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
+where the expectation $\text{E}_{R}[X_e]$ is over the random choices of the algorithm, after choosing a R\"{a}cke tree. The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
 
-To simplify this inequality, we apply a series of definitions and lemmas stated earlier in Section~\ref{sec:rackestrees}. We can rewrite the quantity on the right-hand side as $O(\log^3 n) \tau E[load(e)]$ due to the definition of $load$. Using the definition of $rload$, this can be rewritten again as $O(\log^3 n) \tau E[rload(e) x_e']$. By  Lemma~\ref{lem:rload}, so we can bound this above by $O(\log^3 n) \tau \frac{4}{k} \alpha x_e$. Since $\alpha$ is bounded by $O( \log n)$, we get our final inequality of 
+To simplify this inequality, we apply a series of definitions and lemmas stated earlier in Section~\ref{sec:rackestrees}. 
+\begin{align}
+\textbf{E}_{\mathcal{D}}[E_{R}[X_e]] &\leq \textbf{E}_{\mathcal{D}}[\tau \sum_{e' \in \mathrm{map}^{-1}(e)} O(\log^3 n) y_{e'}] \\
+               &\leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[\sum_{e' \in \mathrm{map}^{-1}(e)} y_{e'}] \\
+               & \leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[load(e)]
+\end{align}
+where the expectation is over the choice of R\"{a}cke tree. Using the definition of $rload$, 
+\begin{align}
+\textbf{E}[X_e] &\leq O(\log^3 n) \tau E[rload(e) x_e'] \\
+                &\leq O(\log^3 n) \tau \frac{4}{k} \alpha x_e
+\end{align}
+where $\text{E}[X_e]$ is the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. Lemma~\ref{lem:rload} gives a bound on the maximum relative load. $\alpha$ is bounded by $O( \log n)$, so our final inequality is 
 \begin{align}
  \textbf{E}[X_e] &\leq \frac{O(\log^4 n)\tau}{k} x_e 
 \end{align}
