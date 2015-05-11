@@ -82,7 +82,6 @@ Of course, since this is an integer linear program, we must relax it to fraction
 
 The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. What we can do is contract $S_i$ and $T_i$ to single vertices, and then compute the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so we have satisfied the constraints.
 
-\section{Tree Embeddings}
 
 %The next tool we will need are tree embeddings. We have seen metric embeddings in class. Basically, we had a desired type of object $O$ (in the case of cuts, we had a metric space corresponding to a cut) what we did was come up with a metric space $(X, d)$ and a map $f: (X, d) \rightarrow O$ such that the map satisfied certain properties on the distances. 
 %
@@ -97,7 +96,7 @@ The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. Wha
 %In other words, vertices map to vertices and edges map to edges. We will usually refer to an embedding as $(T, y, \text{map})$. 
 %\end{definition}
 
-\subsection{R\"{a}cke's Trees}
+\section{R\"{a}cke's Trees}
 
 We will use a particular type of tree embedding given in \cite{racke} which will allow us to map paths in the tree to paths in the graph.
 
@@ -171,7 +170,7 @@ For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\
 The height of the trees sampled is $O(\log nC)$, where $C$ is the ratio of the largest to smallest capacity in $G$. In our cases, the height will always be $O(\log n)$. 
 \end{lemma}
 
-\subsection{RoundGKR Black Box}
+\section{The RoundGKR Procedure}
 
 The RoundGKR algorithm is a rounding procedure used to solve the Group Steiner Tree (GST) problem \cite{GKR}. The problem it stated as follows. \\
 
@@ -203,7 +202,7 @@ We will rely on this lemma heavily. In fact, since we need $\Omega(\frac{k}{\log
 
 \section{Algorithm}
 
-Now we will combine the ideas of the linear program to approximate the survival set connectivity. We copy the algorithm as it is written in the paper below, although we will separate the algorithm into portions and explain each portion in detail.
+Now we will combine the ideas of the linear program to approximate a solution to Survivable Set Connectivity. We copy the algorithm as it is written in the paper below, although we will separate the algorithm into parts and explain each part in detail.
 \begin{codebox}
 \li Set $H \leftarrow \emptyset$
 \li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
@@ -226,17 +225,17 @@ Now we will combine the ideas of the linear program to approximate the survival 
 
 Here, we provide an intuitive explanation of the algorithm as well as the main motivations for each procedure. Of course, we will revist these ideas in the analysis.
 
-After running the linear program, we rescale $x$ to $x'$ by $\frac{4}{k}$ to ensure we have a flow of at least $4$ in each pair $(S_i, T_i)$. This flow of $4$ will correspond to a flow of $4$ on the R\"{a}cke trees.
+After running the linear program, we rescale $x$ to $x'$ by a $\frac{4}{k}$ factor, which ensures that we have a flow of at least $4$ in each $(S_i, T_i)$. This flow of $4$ will correspond to a flow of $4$ in the R\"{a}cke's trees.
 
-The RoundGKR algorithm is the main tool used for our rounding scheme. RoundGKR guarantees find paths on trees which avoid edges will be found with probability $\Omega(\frac{1}{\log n})$ (this is Lemma~\ref{lem:findpath}) given there is sufficient flow. We repeat this $\tau' = O(\log n)$ times to assure a constant probability. 
+The RoundGKR algorithm is the main tool used for our rounding scheme. RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$ (this is Lemma~\ref{lem:findpath}) given there is sufficient flow. We repeat this $\tau' = O(\log n)$ times to assure a constant probability of finding such paths. 
 
-We can only run RoundGKR on trees. We introduce R\"{a}cke trees specifically for this purpose. We know a flow of $4$ exists between leaves (Lemma~\ref{lem:mapflows}). Each flow path will go up the tree to some ancestor $v$ and then back down to a leaf. One such path might be found when $v$ gets marked. One path will go to $s_i'$ and one to $t_i'$.
+However, we can only run RoundGKR on trees, not general graphs. We introduce the R\"{a}cke's tree embedding specifically for this purpose. We know a flow of $4$ exists between leaves (Lemma~\ref{lem:mapflows}). Each flow path will go up the tree to some ancestor $v$ and then back down to a leaf. One such path might be found when $v$ gets marked. One path will go to $s_i'$ and one to $t_i'$.
 
-Lemma~\ref{lem:findpath} requires us to have a flow of at least $1$ avoinding some edges. If a flow path from $s_i'$ to $t_i'$ goes through ancestor $v$ and carries a flow of value $f$, we can apply the lemma if $f \geq 1$. We scale the capacities by $2^{q+1}$ in order to search for the flow value. We only scale with probabilities $\dfrac{4}{2^q}$ so our costs does not increase by more than $O(\log n)$. Figure~\ref{fig:roundgkronnode} shows how a flow path might be found.
+Lemma~\ref{lem:findpath} requires us to have a flow of at least $1$ avoiding some edges. If a flow path from $s_i'$ to $t_i'$ goes through ancestor $v$ and carries a flow of value $f$, we can apply the lemma if $f \geq 1$. We scale the capacities by $2^{q+1}$ in order to search for the flow value. We only scale with probabilities $\dfrac{4}{2^q}$ so our costs does not increase by more than $O(\log n)$. Figure~\ref{fig:roundgkronnode} shows how a flow path might be found.
 
 \subsection{Analysis}
 
-It is straight forward to show that the cost is not too bad.
+First, we argue that the cost of the solution found by this algorithm is within polylogarithmic factors of the optimum.
 
 \begin{lemma}[\cite{ssc}]
 $\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
