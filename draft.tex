@@ -97,6 +97,7 @@ The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. Wha
 %\end{definition}
 
 \section{R\"{a}cke's Trees}
+\label{sec:rackestrees}
 
 We will use a particular type of tree embedding given in \cite{racke} which will allow us to map paths in the tree to paths in the graph.
 
@@ -241,14 +242,77 @@ Lemma~\ref{lem:findpath} requires us to have a flow of at least $1$ avoiding som
 
 We claim that the algorithm finds a solution which has
 \begin{itemize}
-\item (Claim A) at least $\Omega(\frac{k}{\log n})$ edge disjoint paths between each $(S_i, T_i)$ pair
-\item (Claim B) cost within a polylogarithmic factor of the optimum
+\item (Claim A) cost within a polylogarithmic factor of the optimum
+\item (Claim B) at least $\Omega(\frac{k}{\log n})$ edge disjoint paths between each $(S_i, T_i)$ pair
 \end{itemize}
 
-We first prove Claim A, and then using Claim A, we prove Claim B.
+We first prove Claim A assuming that Claim B is true, and then we prove claim B.
+
 
 \subsection{Claim A}
 
+\begin{lemma}[\cite{ssc}]
+$\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
+\end{lemma}
+
+\begin{proof}
+We prove this by bounding the probability that a given edge is included in $H$ by $O(\log^4n(\frac{\log h}{k} + 1))x_e$. The claim then follows by linearity of expectation.
+
+Let $(T = (V_t, E_t), y, \text{map})$ be a Racke tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
+
+For a given edge $e'$, there are at most $height(T)$ ancestors, which means that there are at most $height(T)$ different vertices $v$ that, if $q$-marked, may lead to $e'$ being included. For each $v$, we must consider all $O(\log n)$ possible values of $q$. For each value of $q$, the probability of being $q$-marked is $\frac{4}{2^{q}}$. Once the vertex is $q$-marked, we have $\tau'$ trials of the RoundGKR algorithm, where in each trial, there is a $2^{q+1}y_{e'}$ chance of edge $e'$ being included (by construction of the algorithm). Multiplying these probablities together and applying a union bound over all $\tau'$ trials and over all possible values of $q$, we get an upper bound of 
+
+\begin{align}
+height(T) \sum_{q=0}^{2\log n} \frac{4}{2^{q}} 2^{q+1} y_{e'} \tau' &= height(T) \tau' y_{e'} \sum_{q=0}^{2\log n} 8 = O(\log^3 n) y_{e'} 
+\end{align}
+
+So the probability that a given edge of the tree is included in a particular sampling of a Racke tree is $O(\log^3 n) y_{e'}$. 
+
+Using this, we can bound the probability that a particular edge $e$ of the original graph is included. For $e$ to be included, on one of the $\tau$ trials, the algorithm must chose some tree edge $e'$ such that $e' \in \text{map}^{-1}(e)$ (recall that this is the set of tree edges which, if selected, result in edge $e$ being included). So let $X_e$ be the indicator random variable which says that edge $e$ is included in $H$. Then we have the inequality
+\begin{align}
+ \textbf{E}[X_e] &\leq \tau \sum_{e' \in \text{map}^{-1}(e)} O(\log^3 n) y_{e'} 
+\end{align}
+The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
+
+To simplify this inequality, we apply a series of definitions and lemmas stated earlier in Section~\ref{sec:rackestrees}. We can rewrite the quantity on the right-hand side as $O(\log^3 n) \tau E[load(e)]$ due to the definition of $load$. Using the definition of $rload$, this can be rewritten again as $O(\log^3 n) \tau E[rload(e) x_e']$. By  Lemma~\ref{lem:rload}, so we can bound this above by $O(\log^3 n) \tau \frac{4}{k} \alpha x_e$. Since $\alpha$ is bounded by $O( \log n)$, we get our final inequality of 
+\begin{align}
+ \textbf{E}[X_e] &\leq \frac{O(\log^4 n)\tau}{k} x_e 
+\end{align}
+
+From here, we simply apply linearity of expectation to bound the total cost. We have 
+%
+%
+% Above, we argued that $E[Y_{e'}] \leq O(\log^3 n)y_{e'}$.
+%\begin{align}
+%X_e \leq \sum_{e' \in \text{map}(e)} Y_{e'}
+%\end{align}
+%Because if $e$ is included in the graph, it must have come from some edge in the tree. 
+%\begin{align}
+% \textbf{E}[X_e] &\leq \tau \sum_{e' \in \text{map}^{-1}(e)} O(\log^3 n) y_{e'} \\
+%        &= O(\log^3 n) \tau \textbf{E}[load(e)] \\
+%        &= O(\log^3 n) \tau \textbf{E}[rload(e)x_e'] \\
+%        &\leq O(\log^3 n) \tau \dfrac{4}{k} \alpha x_e\\
+%        & = \dfrac{O(\log^4 n)\tau}{k} x_e
+%\end{align}
+%So now, bounding the optimum, we get
+\begin{align}
+\textbf{E}[c(H)] &= \sum_{e \in E} c(x_e)\textbf{E}[X_e] \\
+                 &\leq \dfrac{O(\log^4 n)\tau}{k} \sum_{e \in E} c(x_e) x_e
+\end{align}
+So when $\tau = O(\log h + k)$, we get our desired approximation.
+\end{proof}
+
+\begin{figure}
+\label{fig:roundgkronnode}
+\centering
+\includegraphics[width=0.6\linewidth]{RoundGKRonNode.pdf}
+\caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
+\end{figure}
+
+Having established that the expected cost is only a polylogarithmic factor away from the optimum, it remains to show that the edges chosen do in fact form a graph which connects $(S_i, T_i)$ with $\Omega(\frac{k}{\log n})$ disjoint paths for each $i$. We will need the following definition.
+
+
+\subsection{Claim B}
 
 \begin{definition}
 For some set of edges $F \subseteq E$, the sampled tree embedding, $(T, y, \text{map})$ is bad if $F_T = \text{map}^{-1}(F)$ 
@@ -322,58 +386,6 @@ Now $\phi_v$ falls between some $(2^{-q_v-1}, 2^{-q_v}]$ for some $q_v \in \{0, 
 
 So the probability that we find a path outside of $F$ is at least one minus the union bound over failure probabilities. This is $1 - \frac{1}{2} - e^{-3/4} - 2\epsilon > 0$. 
 \end{proof}
-
-\subsection{Claim B}
-
-\begin{lemma}[\cite{ssc}]
-$\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
-\end{lemma}
-
-\begin{proof}
-We prove this by bounding the probability that a given edge is included in $H$ by $O(\log^4n(\frac{\log h}{k} + 1))x_e$. The claim then follows by linearity of expectation.
-
-Let $(T = (V_t, E_t), y, \text{map})$ be a Racke tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{-q}}$. 
-
-For a given edge $e'$, there are at most $height(T)$ ancestors, which means that there are at most $height(T)$ different vertices $v$ that, if $q$-marked, may lead to $e'$ being included. For each $v$, we must consider all $O(\log n)$ possible values of $q$. For each value of $q$, the probability of being $q$-marked is $\frac{4}{2^{-q}}$. Once the vertex is $q$-marked, we have $\tau'$ trials of the RoundGKR algorithm, where in each trial, there is a $2^{q+1}y_{e'}$ chance of edge $e'$ being included (by construction of the algorithm). Multiplying these probablities together and applying a union bound over all $\tau'$ trials and over all possible values of $q$, we get an upper bound of 
-
-\begin{align}
-height(T) \sum_q \frac{4}{2^{-q}} 2^{q+1} y_{e'} \tau' &= height(T) \tau' y_{e'} \sum_q 2 = O(\log^3 n) y_{e'} 
-\end{align}
-
-So the probability that a given edge of the tree is included in a particular sampling of a Racke tree is $O(\log^3 n) y_{e'}$. 
-
-For the some edge $e$ to be included, on one of the $\tau$ trials, there must be some $e' \in \mathrm{map}^{-1}(e)$. 
-
-So now in order to include some edge $e$ of the graph $G$, we must include some edge $e' \in \text{map}^{-1}(e)$ (recall that this is the set of tree edges which, if selected, result in edge $e$ being included). So let $X_e$ be the indicator random variable which says that edge $e$ is included in $H$, and $Y_{e'}$ be the indicator random variable which says that edge $e'$ in the tree is included in some RoundGKR execution. Above, we argued that $E[Y_{e'}] \leq O(\log^3 n)y_{e'}$.
-\begin{align}
-X_e \leq \sum_{e' \in \text{map}(e)} Y_{e'}
-\end{align}
-Because if $e$ is included in the graph, it must have come from some edge in the tree. 
-\begin{align}
- \textbf{E}[X_e] &\leq \tau \sum_{e' \in \text{map}^{-1}(e)} O(\log^3 n) y_{e'} \\
-        &= O(\log^3 n) \tau \textbf{E}[load(e)] \\
-        &= O(\log^3 n) \tau \textbf{E}[rload(e)x_e'] \\
-        &\leq O(\log^3 n) \tau \dfrac{4}{k} \alpha x_e\\
-        & = \dfrac{O(\log^4 n)\tau}{k} x_e
-\end{align}
-So now, bounding the optimum, we get
-\begin{align}
-\textbf{E}[c(H)] &= \sum_{e \in E} c(x_e)\textbf{E}[X_e] \\
-                 &\leq \dfrac{O(\log^4 n)\tau}{k} \sum_{e \in E} c(x_e) x_e
-\end{align}
-So when $\tau = O(\log h + k)$, we get our desired approximation.
-\end{proof}
-
-\begin{figure}
-\label{fig:roundgkronnode}
-\centering
-\includegraphics[width=0.6\linewidth]{RoundGKRonNode.pdf}
-\caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
-\end{figure}
-
-Having established that the expected cost is only a polylogarithmic factor away from the optimum, it remains to show that the edges chosen do in fact form a graph which connects $(S_i, T_i)$ with $\Omega(\frac{k}{\log n})$ disjoint paths for each $i$. We will need the following definition.
-
-
 \bibliography{references}
 \bibliographystyle{splncs}
 
