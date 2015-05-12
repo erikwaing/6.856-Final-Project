@@ -252,6 +252,7 @@ We first prove Claim A assuming that Claim B is true, and then we prove claim B.
 \subsection{Claim A}
 
 \begin{lemma}[\cite{ssc}]
+\label{lem:cost}
 $\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
 \end{lemma}
 
@@ -362,6 +363,7 @@ Since we limited the size of $F$. Now invoking Markov's inequality, we know that
 \end{proof}
 
 \begin{lemma}[\cite{ssc}]
+\label{lem:connected}
 With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16\alpha} + 1$ edge connected in $H$. 
 \end{lemma}
 
@@ -397,6 +399,43 @@ Now $\phi_v$ falls between some $(2^{-q_v-1}, 2^{-q_v}]$ for some $q_v \in \{0, 
 
 So the probability that we find a path outside of $F$ is at least one minus the union bound over failure probabilities. This is $1 - \frac{1}{2} - e^{-3/4} - 2\epsilon > 0$. 
 \end{proof}
+
+\section{Potential Improvements}
+
+There seems to be a trade off in the algorithm between finding flow paths between many groups at once and searching for nodes the flow paths traverse. In the original algorithm, we must iterate through each $v \in V_T$ and run some RoundGKRrounds on its subtree. If there are multiple flow paths from different groups, say $(S_1', T_1')$ and $(S_2', T_2')$ going through $v$, then the original algorithm could find both at once. We could be finding $h$ paths with $O(\log n)$ cost (since running RoundGKR on each subtree makes each edge appear in $O(\log n)$ subtrees). 
+
+If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). We can run the algorithm without looking for the nodes where the flow paths turn. In particular, we could treat it as many different instances of the Group Steiner Tree problem. The algorithm would be:
+\begin{codebox}
+\li Set $H \leftarrow \emptyset$
+\li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
+\li Let $x' \leftarrow x*\frac{4}{k}$. 
+\li Prepare $\mathcal{D}$ be the distribution of Racke tree embeddings for $G$ with $x'$.
+\li \For $\tau$ rounds \Do
+\li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
+\li \For $q = 0, ..., 2\log n$ \Do
+\li \For \For $i \in [h]$ and $s \in S_i'$ \Do
+\li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $s$
+\li \If $s$ is $q$-marked \Then
+\li Set $y^{s, q}\leftarrow 2^{q+1}y$ and $E^{s,q} \leftarrow \emptyset$.
+\li \For $\tau'$ iterations, \Do
+\li $E^{s,q} \leftarrow E^{s,q} \cup$ RoundGKR$(T_s, s, y^{s,q})$ \End
+\li $H \leftarrow H \cup \text{map}(E^{s,q})$ \End \End \End \End
+\li return $H$
+\end{codebox}
+The main difference lies in line 8. Instead of iterating through all $v \in V_T$ to find where the flow path turns, we take advantage of knowing where the flow begins. We know all flow paths go from $S_i'$ to $T_i'$, so we make $s \in S_i'$ the root of the tree. It is unnecessary to look for where the flow turns. We still have to iterate through $q= 0, ..., 2\log n$, since the flow of at least $1$ between $S_i'$ and $T_i'$ might be divided among different flow paths starting at different nodes in $S_i'$. This gets rid of the $O(\log n)$ factor in the cost because of the height, and adds a factor of $S$.
+
+Lemma~\ref{lem:connected} still holds. Since we know exactly where the flow paths must start.
+
+\begin{lemma}
+The above algorithm has $\textbf{E}[c(H)] = O(S\log^3 n(\dfrac{\log h}{k} + 1))*c(x)$.
+\end{lemma}
+
+\begin{proof}
+The proof is the same as the proof of Lemma~\ref{lem:cost}. The only difference is that instead of each edge being included in at most $height(T)$ RoundGKR steps, we include it in at most $S$ RoundGKR steps. 
+\end{proof}
+
+Therefore, if $S = o(\log n)$, it is better to run this modified algorithm. Now the question becomes, can we reduce $S$ to $h$? One possible idea is to join all the nodes in $S_i'$. This would destroy the tree property for RoundGKR, but maybe we can disregard some cycles (at least if we analyzed the case with unit costs on the edges). \cite{ssc} uses RoundGKR and R\"{a}cke trees as black boxes, so maybe there is some hope. If this is possible, then our competitiveness would be $O(h\log^3n(\dfrac{\log h}{k} + 1))$. Now if $h = o(\log n)$, then we would prefer this algorithm.
+
 \bibliography{references}
 \bibliographystyle{splncs}
 
