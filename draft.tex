@@ -141,7 +141,7 @@ load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f,
 \end{definition}
 We can also define the relative load, $rload(e) = load(e)/x_e$.
 
-We provide intuition behind the definition of load. Note that in Figure 1, $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. As an immediate consequence of this, we can see that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load measures how necessary an edge is for connectivity. 
+We provide intuition behind the definition of load. Note that in Figure 1, $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. As an immediate consequence of this, we can see that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load measures how necessary an edge is for connectivity. \\
 \noindent \textbf{Additional Details.} For the remainder of this section, we provide a number of statements regarding R\"{a}cke's trees that will be applied to complete the analysis of the algorithm in Section 6. They are provided here for the sake of completeness, but the reader may skip this section and refer to it if interested while reading the proofs in Section 6.
 
 The following lemmas are due to R\"{a}cke, and we state them without proof. Their proofs can be found in \cite{racke}.
@@ -182,7 +182,7 @@ The following integer linear program solves the problem exactly:
 &y_e \in \{0,1\}
 \end{align}
 
-Recall that $\delta(S)$ is the set of edges spanning the cut $(S,V_T \setminus S)$. This program is almost identical to the program for Survivable Set Connectivity, but with $k$ repalced with 1. The argument for why this program works is the same as before; we are minimizing the total cost of the included edges, and we are ensuring with the constraints that there is a path from $r$ to $t_i$ for some $t_i \in T_i$.
+Recall that $\delta(S)$ is the set of edges spanning the cut $(S,V_T \setminus S)$. This program is almost identical to the program for Survivable Set Connectivity, but with $k$ replaced with 1. The argument for why this program works is the same as before; we are minimizing the total cost of the included edges, and we are ensuring with the constraints that there is a path from $r$ to $t_i$ for some $t_i \in T_i$.
 
 If we relax the integer linear program to a linear program and solve it, we can use RoundGKR to round the resulting fractional solution to an integer solution. The optimum to the linear program will assign fractional values in $[0,1]$ to each $y_e$. For any $e$, let $p(e)$ denote its parent edge in the tree (if it exists). We claim that since our problem is to find a subtree that includes the root $r$, edges that are closer to the root are at least as likely to be included in the subtree than edges farther from the root. Since the value of $y_e$ will be used as the probability that edge $e$ is included in $H$, we will assume that $y_{p(e)} \geq y_e$. 
 
@@ -203,9 +203,7 @@ In this section, we present the approximation algorithm given by Chalermsook et 
 
 The algorithm takes as input a graph $G = (V,E)$ with edge cost function $c$ and $h$ tuples of the form $(S_i,T_i)$ along with a value $k$. The algorithm outputs a subgraph $H \subseteq G$, represented as a set of edges of $G$, such that there are at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. Recall that $k$ edge-disjoint paths was the goal, so we fall short of this requirement by a logarithmic factor. The cost of $H$, equal to the sum of the edge costs in $H$, is within a polylogarithmic factor of the optimum. 
 
-Recall that SSC-LP is the linear programming relaxation of the ILP for SSC, presented in Section 2. Also, $\mathcal{D}$ is the distribution over all possible R\"{a}cke's tree embeddings for a graph $G$, which we can sample from in polynomial time. In the algorithm, we use the variable $\tau$ set to be $\log(h)+k$, $\tau'$, set to be $O(\log n)$, and $q$ as an index.
-
-The algorithm is as follows.
+Recall that SSC-LP is the linear programming relaxation of the ILP for SSC, presented in Section 2. Also, $\mathcal{D}$ is the distribution over all possible R\"{a}cke's tree embeddings for a graph $G$, which we can sample from in polynomial time. In the algorithm, we use the variable $\tau$ set to be $\log(h)+k$, $\tau'$, set to be $O(\log n)$, and $q$ as an index. The algorithm is as follows.
 
 \begin{codebox}
 \li Set $H \leftarrow \emptyset$
@@ -229,11 +227,11 @@ The algorithm is as follows.
 
 Here, we provide an intuitive explanation of the algorithm as well as the main motivations for each procedure. Of course, we will revisit these ideas in the analysis.
 
-The algorithm first solves the linear programming relaxation, which produces a value of $x_e \in [0,1]$ for each edge $e \in E$. The first step is to zero out all values of $x_e < \frac{k}{n^2}$. After this, the values are scaled down from $x$ to $x'$ by a $\frac{4}{k}$ factor. Since the linear progrom ensures a fractional path of total capacity $k$ from $S_i$ to $T_i$ for each $i$, this $4/k$ scaling ensures a fractional paths of total capacity $4$. Since we argued that a flow in the original graph $G$ corresponds to a flow of the same value in any corresponding R\"{a}cke's tree, the resulting tree embeddings will also have flows of value 4. 
+The algorithm first solves the linear programming relaxation, which produces a value of $x_e \in [0,1]$ for each edge $e \in E$. The first step is to zero out all values of $x_e < \frac{k}{n^2}$. After this, the values are scaled down from $x$ to $x'$ by a $\frac{4}{k}$ factor. Since the linear progrom ensures a fractional path of total capacity $k$ from $S_i$ to $T_i$ for each $i$, this $4/k$ scaling ensures fractional paths of total capacity $4$. Since we argued that a flow in the original graph $G$ corresponds to a flow of the same value in any corresponding R\"{a}cke's tree, the resulting tree embeddings will also have flows of value 4. 
 
 The next step, which the algorithm repeats $\tau = \log(h) + k$ times, begins by sampling a random R\"{a}cke's tree embedding for the graph $G$. Then, we create an index $q$ which scrolls from 0 to $2\log n$. For each vertex of the tree embedding, and for all possible values of the index $q$, we perform an operation called $q$-marking. This simply involves labeling each vertex with the values of $q$ that we $q$-mark it with. Therefore, any given vertex can be $q$-marked up to $2\log n + 1$ times. For each value of $q$, we $q$-mark a given vertex with probability $\min\{1, \dfrac{4}{2^q}\}$. Then for each vertex $v \in E_T$, we go through all values of $q$ such that $v$ was $q$-marked and perform the following steps: 1) Create a new capacity function $y^{v,q}$ that is the original capacity function $y$ for the tree embedding, scaled up by a factor of $2^{q+1}$. 2) Initialize the set $E^{v,q}$ to be empty. 3) For $\tau' = O(\log n)$ iterations, run the RoundGKR procedure on the R\"{a}cke's tree, with the given capacity function $y^{v,q}$. Whenever edges are output by the procedure, we add them to $E^{v,q}$.
 
-The purpose of these scaling constants is to ensure that the RoundGKR procedure, which looks for paths of value 1, will actually see these paths. We preserve the fact that paths with low capacity are chosen with lower probability. The reason why we have $\tau' = O(\log n)$ iterations is because is because  Lemma~\ref{lem:findpath} shows that RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$. $O(\log n)$ repetitions ensure a constant probability of finding such paths.t
+The purpose of these scaling constants is to ensure that the RoundGKR procedure, which looks for paths of value 1, will actually see these paths. We preserve the fact that paths with low capacity are chosen with lower probability. The reason why we have $\tau' = O(\log n)$ iterations is because is because  Lemma~\ref{lem:findpath} shows that RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$. $O(\log n)$ repetitions ensure a constant probability of finding such paths.
 
 Finally, the algorithm concludes by spitting out all of the edges ever returned by any RoundGKR procedure run on any of the iterations for any of the values of $q$ for any of the nodes $v$ that are $q$-marked.
 %
@@ -392,7 +390,7 @@ As the proof of this theorem is complicated, we break up the overall structure o
 
 \begin{proof}[Proof of Theorem~\ref{theorem:connected}]
 
-Step 1 is a trivial set-up step, and step 2 was Lemma 6~\ref{lem:notbad}. Here, we give the details of step 5.
+Step 1 is a trivial set-up step, and step 2 was Lemma~\ref{lem:notbad}. Here, we give the details of step 5.
 
 We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. We show this happens with a probability at least $\beta$, which will be some constant greater than 0. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}}) = O(\log h + k)$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.
 
@@ -431,7 +429,7 @@ This concludes steps $3$ and $4$ of the proof idea. This finishes the proof that
 
 In this paper, we introduced the Survivable Set Connectivity problem along with the only known approximation algorithm for it. To present the algorithm, we formulated a linear program for the problem, gave a type of tree embedding for general graphs, and a rounding procedure that works exclusively on trees.
 
-It seems that there is much work for improving the algorithm, which currently has a $\log^4(n)$ term in the approximation ratio. In an optional section following this conclusion, we give some of our own ideas for potential improvements. We were able to shave one of the $\log(n)$ factors in a very special case, but we did not think that our improvements were substantial enough to deserve a large section in this paper.
+It seems that there is much room for improvements to the algorithm, which currently has a $\log^4(n)$ term in the approximation ratio. In an optional section following this conclusion, we give some of our own ideas for potential improvements. We were able to shave one of the $\log(n)$ factors in a very special case, but we did not think that our improvements were substantial enough to deserve a large section in this paper.
 
 \section{Optional Section: Minor Potential Improvements}
 
@@ -448,8 +446,6 @@ If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). W
 \li \For $\tau$ rounds \Do
 \li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
 \li \For $q = 0, ..., 2\log n$ \Do
-\end{codebox}
-\begin{codebox*}
 \li \For \For $i \in [h]$ and $s \in S_i'$ \Do
 \li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $s$
 \li \If $s$ is $q$-marked \Then
@@ -458,7 +454,7 @@ If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). W
 \li $E^{s,q} \leftarrow E^{s,q} \cup$ RoundGKR$(T_s, s, y^{s,q})$ \End
 \li $H \leftarrow H \cup \text{map}(E^{s,q})$ \End \End \End \End
 \li return $H$
-\end{codebox*}
+\end{codebox}
 The main difference lies in line 8. Instead of iterating through all $v \in V_T$ to find where the flow path turns, we take advantage of knowing where the flow begins. We know all flow paths go from $S_i'$ to $T_i'$, so we make $s \in S_i'$ the root of the tree. It is unnecessary to look for where the flow turns. We still have to iterate through $q= 0, ..., 2\log n$, since the flow of at least $1$ between $S_i'$ and $T_i'$ might be divided among different flow paths starting at different nodes in $S_i'$. This gets rid of the $O(\log n)$ factor in the cost because of the height, and adds a factor of $S$.
 
 Theorem~\ref{theorem:connected} still holds since we know exactly where the flow paths must start.
