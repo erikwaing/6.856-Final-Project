@@ -97,7 +97,9 @@ The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. Wha
 \section{R\"{a}cke's Trees}
 \label{sec:rackestrees}
 
-We will use a particular type of tree embedding given in \cite{racke} which will allow us to map paths in the tree to paths in the graph.
+In this section, we introduce a specific type of \emph{tree embedding}. A tree embedding is a transformation that takes general graphs and maps them to trees, while preserving much of the information present in the original graph. This way, algorithmic procedures that work well on trees can be applied to general graphs after a tree embedding has been applied. 
+
+For the SSC problem, we will use a specific tree embedding formulated by R\"{a}cke, known as R\"{a}cke's trees. The property we are most interested in is the way that R\"{a}cke's tree embeddings preserve flow properties in the original graph. The definition of these embeddings is as follows.
 
 \begin{definition}
 For a given graph $G = (V, E)$ with edge capacities $x_e \geq 0$, $e \in E$, a R\"{a}cke's Tree embedding is a triple of the form $(T,y,\mathrm{map})$ where $T = (V_T,E_T)$ is a rooted tree, $y$ is a capacity function on the edges $E_T$ of $T$, and $\mathrm{map}$ is a function $V_T \cup E_T \to V \cup 2^E$ satisfying the following properties:
@@ -140,7 +142,7 @@ The usefulness of R\"{a}cke's trees becomes apparent when we consider multi-comm
 
 There is a natural way to map multi-commodity flows between $G$ and $T$. In particular, suppose we have a multi-commodity flow $\{ f_i \}$ on $G$. For each $i$, if there are $f_i$ units of flow going from $s_i$ to $t_i$ in $G$, we route $f_i$ units of flow in the $T$ from $\mathrm{map}^{-1}(s_i)$ to $\mathrm{map}^{-1}(t_i)$. If we are given a multicommodity flow $\{ f_i^T \}$ in $T$, then if we have $f_i^T(e)$ units of flow on edge $e$ in $T$, then we route $f_i^T(e)$ units of flow through the path $\mathrm{map}(e)$ in $G$ (recall that edges in $T$ map to paths in $G$).
 
-Figure~\ref{fig:racketree} gives an example of the flow correspondence between a graph and it's associated R\"{a}cke's tree. Each red vertex of the tree is mapped to another red vertex on the graph, and the edge between them corresponds to a path between the red vertices. This gives us a simple way to map flows from Racke trees to the graph and vice-versa. 
+Figure~\ref{fig:racketree} gives an example of the flow correspondence between a graph and it's associated R\"{a}cke's tree. Each red vertex of the tree is mapped to another red vertex on the graph, and the edge between them corresponds to a path between the red vertices. This gives us a simple way to map flows from R\"{a}cke's trees to the graph and vice-versa. 
 
 \begin{figure}
 \label{fig:racketree}
@@ -149,7 +151,7 @@ Figure~\ref{fig:racketree} gives an example of the flow correspondence between a
 \caption{Example Racke Tree where red nodes are mapped and edge maps to a path.}
 \end{figure}
 
-There are some crucial properties of Racke trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to [CITE] for the proofs.
+There are some crucial properties of R\"{a}cke's trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to [CITE] for the proofs.
 
 \begin{lemma}[\cite{racke}]
 \label{lem:mapflows}
@@ -158,7 +160,7 @@ If we have a graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\ge
 
 \begin{lemma}[\cite{racke}]
 \label{lem:rload}
-For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\geq 0}$, we can sample efficiently from Racke trees of $G$, such that 
+For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\geq 0}$, we can sample efficiently from R\"{a}cke's trees of $G$, such that 
 \begin{align}
 \max_{e \in E} \textbf{E}[rload(e)] &\leq \alpha = O(\log n) 
 \end{align}
@@ -208,7 +210,7 @@ Now we will combine the ideas of the linear program to approximate a solution to
 \li Set $H \leftarrow \emptyset$
 \li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
 \li Let $x' \leftarrow x*\frac{4}{k}$. 
-\li Prepare $\mathcal{D}$ be the distribution of Racke tree embeddings for $G$ with $x'$.
+\li Prepare $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
 \li \For $\tau$ rounds \Do
 \li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
 \li \For $q = 0, ..., 2\log n$ \Do
@@ -257,7 +259,7 @@ $\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e
 \begin{proof}
 We prove this by bounding the probability that a given edge is included in $H$ by $O(\log^4n(\frac{\log h}{k} + 1))x_e$. The claim then follows by linearity of expectation.
 
-Let $(T = (V_t, E_t), y, \text{map})$ be a Racke tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
+Let $(T = (V_t, E_t), y, \text{map})$ be a R\"{a}cke's tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
 
 For a given edge $e'$, there are at most $height(T)$ ancestors, which means that there are at most $height(T)$ different vertices $v$ that, if $q$-marked, may lead to $e'$ being included. For each $v$, we must consider all $O(\log n)$ possible values of $q$. For each value of $q$, the probability of being $q$-marked is $\frac{4}{2^{q}}$. Once the vertex is $q$-marked, we have $\tau'$ trials of the RoundGKR algorithm, where in each trial, there is a $2^{q+1}y_{e'}$ chance of edge $e'$ being included (by construction of the algorithm). Multiplying these probablities together and applying a union bound over all $\tau'$ trials and over all possible values of $q$, we get an upper bound of 
 
@@ -265,7 +267,7 @@ For a given edge $e'$, there are at most $height(T)$ ancestors, which means that
 height(T) \sum_{q=0}^{2\log n} \frac{4}{2^{q}} 2^{q+1} y_{e'} \tau' &= height(T) \tau' y_{e'} \sum_{q=0}^{2\log n} 8 = O(\log^3 n) y_{e'} 
 \end{align}
 
-So the probability that a given edge of the tree is included in a particular sampling of a Racke tree is $O(\log^3 n) y_{e'}$. 
+So the probability that a given edge of the tree is included in a particular sampling of a R\"{a}cke's tree is $O(\log^3 n) y_{e'}$. 
 
 Using this, we can bound the probability that a particular edge $e$ of the original graph is included. For $e$ to be included, on one of the $\tau$ trials, the algorithm must chose some tree edge $e'$ such that $e' \in \mathrm{map}^{-1}(e)$ (recall that this is the set of tree edges which, if selected, result in edge $e$ being included). So let $X_e$ be the indicator random variable which says that edge $e$ is included in $H$. Then we have the inequality
 \begin{align}
@@ -407,7 +409,7 @@ If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). W
 \li Set $H \leftarrow \emptyset$
 \li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
 \li Let $x' \leftarrow x*\frac{4}{k}$. 
-\li Prepare $\mathcal{D}$ be the distribution of Racke tree embeddings for $G$ with $x'$.
+\li Prepare $\mathcal{D}$, the distribution of R'\"{a}cke's tree embeddings for $G$ with $x'$.
 \li \For $\tau$ rounds \Do
 \li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
 \li \For $q = 0, ..., 2\log n$ \Do
