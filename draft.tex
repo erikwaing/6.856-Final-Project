@@ -63,26 +63,19 @@ In this section, we give an integer linear program that exactly solves SSC. Reca
  x_e &= \left\{ \begin{array}{cc} 1 & e \in H \\
                                   0 & \text{ otherwise. } \end{array} \right.
 \end{align}
-Thus, our output $H$ will be the subgraph consisting of edges $e$ where $x_e = 1$. \\ \\
-
-We claim that the following ILP captures SSC exactly. 
-SSC-LP:
+Thus, our output $H$ will be the subgraph consisting of edges $e$ where $x_e = 1$. Also, for a graph $G = (V,E)$ and for a set $S \subseteq V$, we define $\delta(S)$ to be the set of edges crossing the cut from $S$ to $V \setminus S$. 
+With this setup, we claim that the following ILP captures SSC exactly. 
 \begin{align}
 \min & \sum c(x) x_e  \\
-\text{ s.t } & \sum_{e \in \delta(S)} x_e \geq k, \text{for each }S\text{ where } S_i \subset S,T_i \subset V - S, \\ & \hspace{1in}\delta(S) \text{ is the edges of the $S$ cut } \\
+\text{ s.t } & \sum_{e \in \delta(S)} x_e \geq k, \text{for each }S\text{ where } S_i \subset S,T_i \subset V \setminus S,  \\
 & x_e \in \{0,1\} \text{ for all }e \in E
 \end{align}
 
 The objective function $\sum c(x) x_e$ simply minimizes the cost of all edges included in $H$. The constraint ensures that for all pairs $(S_i,T_i)$, any cut where $S_i$ is on one side of the cut and $T_i$ is on the other side has at least $k$ edges crossing the cut. We claim (but do not prove) that this property holds if and only if there are $k$ edge disjoint paths from $S_i$ to $T_i$. 
-%
-%
-% 
-%This cut-based integer linear program finds exactly $H$. To see why the constraints ensure that each $(S_i, T_i)$ pair has at least $k$ edge disjoint paths, we can look at the cuts corresponding to $S_i$ and $T_i$. First, we let $S = S_i$, then there are $k$ outgoing edges. We can choose to include one more node to $S$, following a particular outgoing edge of the cut in $H$. We can continue doing this until we reach $T_i$. This will trace out a path between $S_i$ and $T_i$. If we do this for each edge, and then we do this for each $(S_i, T_i)$ pair, we can confirm that there are in fact $k$ edge-disjoint paths between each $(S_i, T_i)$ pair. 
 
-Of course, since this is an integer linear program, we must relax it to fractional solutions in order to solve it. Thus, we relax the constraint of $x_e \in \{0,1\}$ to $0 \leq x_e \leq 1$. However, there is still a slight issue; there can be exponentially many constraints. This is because there are exponentially many choices of $S$ for each $(S_i,T_i)$ pair. To get around this issue, we note that the ellipsoid algorithm can handle linear programs with arbitrarily many constraints, as long as it is given a separation oracle. Luckily, we can give such an oracle. 
+Of course, since this is an integer linear program, our best hope is to approximate it. We relax the program to fractional solutions, so the constraint that $x_e \in \{0,1\}$ becomes $0 \leq x_e \leq 1$. However, there is still a slight issue; we have exponentially many constraints. This occurs because there can be exponentially many choices of $S$ for each $(S_i,T_i)$ pair. To get around this issue, we note that the ellipsoid algorithm can handle linear programs with arbitrarily many constraints, as long as it is given a polynomial time separation oracle. Luckily, such an oracle exists and we sketch it here.
 
-The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. What we can do is contract $S_i$ and $T_i$ to single vertices, and then compute the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so we have satisfied the constraints.
-
+The oracle computes the minimum $S_i, T_i$ cut in the graph. It contracts $S_i$ and $T_i$ to single vertices, and then computes the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so all constraints are satisfied.
 
 %The next tool we will need are tree embeddings. We have seen metric embeddings in class. Basically, we had a desired type of object $O$ (in the case of cuts, we had a metric space corresponding to a cut) what we did was come up with a metric space $(X, d)$ and a map $f: (X, d) \rightarrow O$ such that the map satisfied certain properties on the distances. 
 %
