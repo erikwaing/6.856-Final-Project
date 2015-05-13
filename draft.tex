@@ -67,7 +67,7 @@ SSC-LP:
 \begin{align}
 \min & \sum c(x) x_e  \\
 \text{ s.t } & \sum_{e \in \delta(S)} x_e \geq k, \text{for each }S\text{ where } S_i \subset S,T_i \subset V - S, \\ & \hspace{1in}\delta(S) \text{ is the edges of the $S$ cut } \\
-& x_e \in [0,1] \text{ for all }e \in E
+& x_e \in \{0,1\} \text{ for all }e \in E
 \end{align}
 
 The objective function $\sum c(x) x_e$ simply minimizes the cost of all edges included in $H$. The constraint ensures that for all pairs $(S_i,T_i)$, any cut where $S_i$ is on one side of the cut and $T_i$ is on the other side has at least $k$ edges crossing the cut. This property holds if and only if there are $k$ edge disjoint paths from $S_i$ to $T_i$. 
@@ -76,7 +76,7 @@ The objective function $\sum c(x) x_e$ simply minimizes the cost of all edges in
 % 
 %This cut-based integer linear program finds exactly $H$. To see why the constraints ensure that each $(S_i, T_i)$ pair has at least $k$ edge disjoint paths, we can look at the cuts corresponding to $S_i$ and $T_i$. First, we let $S = S_i$, then there are $k$ outgoing edges. We can choose to include one more node to $S$, following a particular outgoing edge of the cut in $H$. We can continue doing this until we reach $T_i$. This will trace out a path between $S_i$ and $T_i$. If we do this for each edge, and then we do this for each $(S_i, T_i)$ pair, we can confirm that there are in fact $k$ edge-disjoint paths between each $(S_i, T_i)$ pair. 
 
-Of course, since this is an integer linear program, we must relax it to fractional solutions in order to solve it. Thus, we relax the constraint of $x_e \in [0,1]$ to $0 \leq x_e \leq 1$. However, there is still a slight issue; there can be exponentially many constraints. This is because there are exponentially many choices of $S$ for each $(S_i,T_i)$ pair. To get around this issue, we note that the ellipsoid algorithm can handle linear programs with arbitrarily many constraints, as long as it is given a separation oracle. Luckily, we can give such an oracle. 
+Of course, since this is an integer linear program, we must relax it to fractional solutions in order to solve it. Thus, we relax the constraint of $x_e \in \{0,1\}$ to $0 \leq x_e \leq 1$. However, there is still a slight issue; there can be exponentially many constraints. This is because there are exponentially many choices of $S$ for each $(S_i,T_i)$ pair. To get around this issue, we note that the ellipsoid algorithm can handle linear programs with arbitrarily many constraints, as long as it is given a separation oracle. Luckily, we can give such an oracle. 
 
 The separation oracle just computes the minimum $S_i, T_i$ cut in the graph. What we can do is contract $S_i$ and $T_i$ to single vertices, and then compute the min-cut in the remaining graph. If there is a min-cut of size less than $k$, then that cut will correspond to a violating contraint. If the min-cut has size at least $k$, then all cuts have size at least $k$, so we have satisfied the constraints.
 
