@@ -33,7 +33,7 @@
 
 In this paper, we analyze the problem of Survivable Set Connectivity (SSC), a generalization of the classical Set Connectivity problem. Set connectivity is formulated as:
 \begin{quote}
-\textbf{Input}: A weighted graph $G = (V, E)$, with edge cost function $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of tuples of the form $(S_i, T_i)$. Each $(S_i,T_i)$ is a pair of disjoint vertex subsets. \\
+\textbf{Input}: A weighted graph $G = (V, E)$, with edge cost function $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of $h$ tuples of the form $(S_i, T_i)$. Each $(S_i,T_i)$ is a pair of disjoint vertex subsets. \\
 \textbf{Output}: A minimum cost subgraph $H \subseteq G$ such that there is a path between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
@@ -42,7 +42,7 @@ Note that a ``path between $S_i$ and $T_i$" refers to any path that connects a v
 In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be connected by $k_i$ paths, instead of just 1. More formally, the problem is:
 
 \begin{quote}
-\textbf{Input}: A weighted graph $G = (V, E)$, with edge cost function $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of tuples of the form $(S_i, T_i)$, along with a value $k$. Again, each $(S_i,T_i)$ is a pair of disjoint vertex subsets. \\
+\textbf{Input}: A weighted graph $G = (V, E)$, with edge cost function $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of $h$ tuples of the form $(S_i, T_i)$, along with a value $k$. Again, each $(S_i,T_i)$ is a pair of disjoint vertex subsets. \\
 \textbf{Output}: A minimum cost subgraph $H \subseteq G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
@@ -95,7 +95,7 @@ The oracle computes the minimum $S_i, T_i$ cut in the graph. It contracts $S_i$ 
 
 In this section, we introduce a specific type of \emph{tree embedding}. A tree embedding is a transformation that takes general graphs and maps them to trees, while preserving specific information present in the original graph. This way, algorithmic techinques that work well on trees can be applied to general graphs after a tree embedding has been applied. 
 
-For the SSC problem, we will use a specific tree embedding formulated by R\"{a}cke, known as R\"{a}cke's trees \cite{racke}. The property we are most interested in is the way that R\"{a}cke's tree embeddings preserve flow properties in the original graph. The definition of these embeddings is as follows.
+For the SSC problem, we will use a specific tree embedding formulated by R\"{a}cke, known as R\"{a}cke's trees \cite{racke}. The property we are most interested in is the way that R\"{a}cke's tree embeddings preserve flow properties in the original graph. The definition of these embeddings is as follows. (\emph{Note to the reader:} the following definitions are quite long, so it may be helpful to reference Figure 1 on the following page while reading the definitions.)
 
 \begin{definition}
 For a given graph $G = (V, E)$ with edge capacities $x_e \geq 0$ for all $e \in E$, a R\"{a}cke's Tree embedding is a triple of the form $(T,y,\mathrm{map})$ where $T = (V_T,E_T)$ is a rooted tree, $y$ is a capacity function on the edges $E_T$ (with $y_e \geq 0$ for all $e \in E_T$), and $\mathrm{map}$ is a function that maps vertices in $V_T$ to vertices in $V$, and edges in $E_T$ to sets of edges in $E$. The following properties must also hold:
@@ -106,42 +106,43 @@ For a given graph $G = (V, E)$ with edge capacities $x_e \geq 0$ for all $e \in 
 \end{enumerate}
 \end{definition}
 
-We point out a small possibility for confusion here. We think of a Racke's tree embedding as a transformation from a graph to a tree, but the $\mathrm{map}$ function used in the above definition is a function from the tree to the graph. Thus, the function that actually \emph{embeds} the graph into the tree is the inverse function, $\mathrm{map}^{-1}$.
+We point out a small possibility for confusion here. We think of a R\"{a}cke's tree embedding as a transformation from a graph to a tree, but the $\mathrm{map}$ function used in the above definition is a function from the tree to the graph. Thus, the function that actually \emph{embeds} the graph into the tree is the inverse function, $\mathrm{map}^{-1}$.
 
 Thus, we clarify the properties of $\mathrm{map}^{-1}$. If we apply $\mathrm{map}^{-1}$ to a node in the original graph, $v \in V$, we note that multiple vertices in $T$ could map to $v$. Thus, we specify that $\mathrm{map}^{-1}(v)$ be the unique \emph{leaf} vertex in $V_T$ that maps to $v$. Recall that this uniqueness follows from the bijection property outlined in the above definition. We also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and we define it in a natural fashion: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
 
 For edges in the original graph, $e \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f) \subseteq E$ that contain $e$. Again, this definition can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
 
-\begin{definition}
-Given a R\"{a}cke tree, the load on an edge of the graph $e \in E$ is
-\begin{align}
-load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f,
-\end{align}
-and the relative load is defined as 
-\begin{align}
-rload(e) = \dfrac{load(e)}{x_e}.
-\end{align}
-\end{definition}
+At this point, we direct the reader to Figure 1, which contains a visualization of the above definitions.
 
-Figure~\ref{fig:racketree} shows an example R\"{a}cke's tree. We see a tree on the left-hand side which corresponds to the graph on the right-hand side. Each node is labeled by a number. The number indicates the projection of $\mathrm{map}$. A node of the tree labeled $1$ corresponds to the node in the graph labeled $1$. As you can see, the leaves are in bijection with the nodes of the graph. 
+The usefulness of R\"{a}cke's trees becomes apparent when we consider multi-commodity flows. Recall that the multi-commodity flow problem specifies $k$ different commodities, where each commodity $i$ must be routed from source $s_i$ to sink $t_i$, subject to constraints on the capacity of each edge. The resulting flow can be represented as a set of functions $\{ f_i \}$, where $f_i(e)$ is the nonnegative real number amount of commodity $i$ flowing on edge $e$. 
 
-In addition, edges in the tree correspond to paths in the graph. The bolded edges of the tree map to the bolded edges in the graph. The top-most edge in the tree connects nodes $3$ and $5$, and that edge maps to the edge in the graph connecting $3$ and $5$. Then the bolded edge in the tree connecting $5$ to $5$ corresponds to the empty path. The bolded edge of the tree connecting $5$ to $4$ corresponds to the bolded edge in the graph connecting $4$ and $5$. Paths in the tree correspond to paths in the graph. 
-
-We also note the capacity of the edge in the tree labeled $y$ is $x_1 + x_2 + x_3$. Edge $y$ disconnects the leaves into two groups, $S'$ and the rest. $S'$ maps bijectively to $S$. $S$ induces a cut on the graph, which cuts edges $x_1$, $x_2$, and $x_3$. Therefore, the capacity of $y$ (as defined by R\"{a}cke's trees) is the sum of the capacities of $x_1,x_2,$ and $x_3$. 
-
-Another thing to notice is that $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. An immediate consequence, which we can see from the load is that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load will measure how necessary an edge is for connectivity. 
+There is a natural way to map multi-commodity flows between $G$ and $T$. In particular, suppose we have a multi-commodity flow $\{ f_i \}$ on $G$. For each $i$, if there are $f_i$ units of flow going from $s_i$ to $t_i$ in $G$, we route $f_i$ units of flow in the $T$ from $\mathrm{map}^{-1}(s_i)$ to $\mathrm{map}^{-1}(t_i)$. For the other direction of the mapping, suppose we are given a multicommodity flow $\{ f_i^T \}$ in $T$. If edge $e \in T$ has $f_i^T(e)$ units of flow, then we route $f_i^T(e)$ units of flow through the path $\mathrm{map}(e)$ in $G$ (recall that edges in $T$ map to paths in $G$).
 
 \begin{figure}
 \label{fig:racketree}
 \includegraphics[width=\linewidth]{RackeTree.pdf}
-\caption{A R\"{a}cke's tree example. A R\"{a}cke tree on the left maps to a graph on the right. The map on vertices is defined by the labelings on the nodes. The bolded edges map to the bolded edges. Edge $y$ defines a set of leaves $S'$, which defines a cut on the graph, $S$. $S$ cuts edges $x_1, x_2,$ and $x_3$; therefore, $y = x_1 + x_2 + x_3$.}
+\caption{An example of a R\"{a}cke's tree embedding. On the left, we have the tree $T$, and on the right, we have the original graph $G$ which is embedded in $T$. Nodes of $G$ are labeled from 1 through 5, and the nodes of $T$ are labeled by the nodes of $G$ that they are mapped to. Note in particular that the leaves of $T$ contain all the labels from 1 through 5, as there is a bijection between the tree leaves and the graph nodes. In addition, observe that multiple nodes of the tree map can map to the same node in the graph. For example, four nodes in the tree all map to node 3 in $G$, but we specify that $\mathrm{map}^{-1}(3)$ be the specific leaf node that maps to 3.
+\newline
+\text{ }\hspace{.3in} Consider the edge labeled $y$ in the tree. The removal of $y$ separates the leaves of the tree into those that are in $S'$ and those that are not in $S'$. The leaves in $S'$ map to the nodes in $S$ in $G$, and so the capacity of $y$ is given by the sum of the capacities of the edges that span the cut $(S,V\setminus S)$. These edge capacities are $x_1$, $x_2$, and $x_3$, so the capacity of $y$ is $x_1 + x_2+x_3$.
+\newline
+\text{ }\hspace{.3in} Certain edges are bolded to highlight the effect of $\mathrm{map}$ on edges. Since the $\mathrm{map}$ function maps edges in the tree to paths in $G$, we have that the bolded edge from 3 to 5 in the tree maps to the bolded length 1 path from 3 to 5 in the graph. The bolded edge from 5 to 5 maps to the empty path of length 0 from 5 to 5 in the graph. The bolded edge from 4 to 5 maps to the bolded path of length 1 from 4 to 5 in the graph.}
 \end{figure}
 
-The usefulness of R\"{a}cke's trees becomes apparent when we consider multi-commodity flows. Recall that the multi-commodity flow problem specifies $k$ different commodities, where each commodity $i$ must be routed from source $s_i$ to sink $t_i$, subject to constraints on the capacity of each edge. The resulting flow can be represented as a set of functions $\{ f_i \}$, where $f_i(e)$ is the nonnegative real number amount of commodity $i$ flowing on edge $e$. 
+Lastly, we define the distribution $\mathcal{D}$ as the uniform distribution over all possible R\"{a}cke's tree embeddings for a given graph $G$. There is a polynomial time algorithm for sampling from this distribution, given in \cite{racke}. This distribution $\mathcal{D}$ will be important for describing the SSC algorithm, as the algorithm will sample from it.\\
 
-There is a natural way to map multi-commodity flows between $G$ and $T$. In particular, suppose we have a multi-commodity flow $\{ f_i \}$ on $G$. For each $i$, if there are $f_i$ units of flow going from $s_i$ to $t_i$ in $G$, we route $f_i$ units of flow in the $T$ from $\mathrm{map}^{-1}(s_i)$ to $\mathrm{map}^{-1}(t_i)$. If we are given a multicommodity flow $\{ f_i^T \}$ in $T$, then if we have $f_i^T(e)$ units of flow on edge $e$ in $T$, then we route $f_i^T(e)$ units of flow through the path $\mathrm{map}(e)$ in $G$ (recall that edges in $T$ map to paths in $G$).
+\noindent \textbf{Additional Details.} For the remainder of this section, we provide a number of definitions and statements regarding R\"{a}cke's trees that will be used to wrap up the analysis of Lemma 5 in Section 6.2. They are provided here for the sake of completeness, but the reader may skip this section and refer to it if interested while reading the proof of Lemma 5.
 
-There are some crucial properties of R\"{a}cke's trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to \cite{racke} for the proofs.
+\begin{definition}
+Given a R\"{a}cke's tree, the load on an edge of the graph $e \in E$ is
+\begin{align}
+load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f,
+\end{align}
+\end{definition}
+We can also define the relative load, $rload(e) = load(e)/x_e$.
+
+We provide intuition behind the definition of load. Note that in Figure 1, $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. As an immediate consequence of this, we can see that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load measures how necessary an edge is for connectivity. 
+
+The following lemmas are due to R\"{a}cke, and we state them without proof. Their proofs can be found in \cite{racke}.
 
 \begin{lemma}[\cite{racke}]
 \label{lem:mapflows}
@@ -161,7 +162,6 @@ For some given graph $G = (V, E)$ and capacities $x: E \rightarrow \mathbb{R}^{\
 The height of the trees sampled is $O(\log nC)$, where $C$ is the ratio of the largest to smallest capacity in $G$. In our cases, the height will always be $O(\log n)$. 
 \end{lemma}
 
-We refer to $\mathcal{D}$ as the distribution over R\"{a}cke trees with the above properties. In \cite{racke}, there is a polynomial time algorithm for sampling from this distribution.
 
 \section{The RoundGKR Procedure}
 
