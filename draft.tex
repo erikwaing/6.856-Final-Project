@@ -197,12 +197,19 @@ Suppose that $T = (V_t, E_t)$ supports a flow of at least $1$ from $T_i$ to the 
 
 \section{Algorithm}
 
-Now we will combine the ideas of the linear program to approximate a solution to Survivable Set Connectivity. We copy the algorithm as it is written in the paper below, although we will separate the algorithm into parts and explain each part in detail.
+In this section, we present the approximation algorithm given by Chalermsook et al \cite{ssc}. The algorithm uses many concepts presented earlier in the paper, which we remind the reader of first.
+
+The algorithm takes as input a graph $G = (V,E)$ with edge cost function $c$ and $h$ tuples of the form $(S_i,T_i)$ along with a value $k$. The algorithm outputs a subgraph $H \subseteq G$, represented as a set of edges of $G$, such that there are at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. Recall that $k$ edge-disjoint paths was the goal, so we fall short of this requirement by a logarithmic factor. The cost of $H$, equal to the sum of the edge costs in $H$, is within a polylogarithmic factor of the optimum. 
+
+Recall that SSC-LP is the linear programming relaxation of the ILP for SSC, presented in Section 2. Also, $\mathcal{D}$ is the distribution over all possible R\"{a}cke's tree embeddings for a graph $G$, which we can sample from in polynomial time. In the algorithm, we use the variable $\tau$ set to be $\log(h)+k$, $\tau'$, set to be $O(\log n)$, and $q$ as an index.
+
+The algorithm is as follows.
+
 \begin{codebox}
 \li Set $H \leftarrow \emptyset$
 \li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
 \li Let $x' \leftarrow x*\frac{4}{k}$. 
-\li Prepare $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
+\li Let $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
 \li \For $\tau$ rounds \Do
 \li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
 \li \For $q = 0, ..., 2\log n$ \Do
@@ -218,15 +225,17 @@ Now we will combine the ideas of the linear program to approximate a solution to
 
 \subsection{Algorithm Idea}
 
-Here, we provide an intuitive explanation of the algorithm as well as the main motivations for each procedure. Of course, we will revist these ideas in the analysis.
+Here, we provide an intuitive explanation of the algorithm as well as the main motivations for each procedure. Of course, we will revisit these ideas in the analysis.
 
-After running the linear program, we rescale $x$ to $x'$ by a $\frac{4}{k}$ factor, which ensures that we have a flow of at least $4$ in each $(S_i, T_i)$. This flow of $4$ will correspond to a flow of $4$ in the R\"{a}cke's trees.
+The algorithm first solves the linear programming relaxation, which produces a value of $x_e \in [0,1]$ for each edge $e \in E$. The first step is to zero out all values of $x_e < \frac{k}{n^2}$. After this, the values are scaled down from $x$ to $x'$ by a $\frac{4}{k}$ factor. Since the linear progrom ensures a fractional path of total capacity $k$ from $S_i$ to $T_i$ for each $i$, this $4/k$ scaling ensures a fractional paths of total capacity $4$. Since we argued that a flow in the original graph $G$ corresponds to a flow of the same value in any corresponding R\"{a}cke's tree, the resulting tree embeddings will also have flows of value 4. 
 
-The RoundGKR algorithm is the main tool used for our rounding scheme. RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$ (this is Lemma~\ref{lem:findpath}) given there is sufficient flow. We repeat this $\tau' = O(\log n)$ times to assure a constant probability of finding such paths. 
+The next step, which the algorithm repeats $\tau = \log(h) + k$ times, begins by sampling a random R\"{a}cke's tree embedding for the graph $G$. Then, we create an index $q$ which scrolls from 0 to $2\log n$. For each vertex of the tree embedding, and for all possible values of the index $q$, we perform an operation called $q$-marking. This simply involves labeling each vertex with the values of $q$ that we $q$-mark it with. Therefore, any given vertex can be $q$-marked up to $2\log n + 1$ times. For each value of $q$, we $q$-mark a given vertex with probability $\min\{1, \dfrac{4}{2^q}\}$. Then for each vertex $v \in E_T$, we go through all values of $q$ such that $v$ was $q$-marked and perform the following steps: 1) Create a new capacity function $y^{v,q}$ that is the original capacity function $y$ for the tree embedding, scaled up by a factor of $2^{q+1}$. 2) Initialize the set $E^{v,q}$ to be empty. 3) For $\tau' = O(\log n)$ iterations, run the RoundGKR procedure on the R\"{a}cke's tree, with the given capacity function $y^{v,q}$. Whenever edges are output by the procedure, we add them to $E^{v,q}$.
 
-However, we can only run RoundGKR on trees, not general graphs. We introduce the R\"{a}cke's tree embedding specifically for this purpose. We know a flow of $4$ exists between leaves (Lemma~\ref{lem:mapflows}). Each flow path will go up the tree to some ancestor $v$ and then back down to a leaf. One such path might be found when $v$ gets marked. One path will go to $s_i'$ and one to $t_i'$.
+The purpose of these scaling constants is to ensure that the RoundGKR procedure, which looks for paths of value 1, will actually see these paths. We preserve the fact that paths with low capacity are chosen with lower probability. The reason why we have $\tau' = O(\log n)$ iterations is because is because  Lemma~\ref{lem:findpath} shows that RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$. $O(\log n)$ repetitions ensure a constant probability of finding such paths.
 
-Lemma~\ref{lem:findpath} requires us to have a flow of at least $1$ avoiding some edges. If a flow path from $s_i'$ to $t_i'$ goes through ancestor $v$ and carries a flow of value $f$, we can apply the lemma if $f \geq 1$. We scale the capacities by $2^{q+1}$ in order to search for the flow value. We only scale with probabilities $\dfrac{4}{2^q}$ so our costs does not increase by more than $O(\log n)$. Figure~\ref{fig:roundgkronnode} shows how a flow path might be found.
+Finally, the algorithm concludes by spitting out all of the edges ever returned by any RoundGKR procedure run on any of the iterations for any of the values of $q$ for any of the nodes $v$ that are $q$-marked.
+%
+%Lemma~\ref{lem:findpath} requires us to have a flow of at least $1$ avoiding some edges. If a flow path from $s_i'$ to $t_i'$ goes through ancestor $v$ and carries a flow of value $f$, we can apply the lemma if $f \geq 1$. We scale the capacities by $2^{q+1}$ in order to search for the flow value. We only scale with probabilities $\dfrac{4}{2^q}$ so our costs does not increase by more than $O(\log n)$. Figure~\ref{fig:roundgkronnode} shows how a flow path might be found.
 
 \section{Algorithm Analysis}
 
