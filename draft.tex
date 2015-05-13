@@ -379,86 +379,101 @@ Now, we can state the theorem we need for the desired connectivity claim. Note t
 With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16\alpha} + 1$ edge connected in $H$. 
 \end{theorem}
 
-As the proof of this theorem is complicated, we break up the overall structure of the theorem into five parts.
+As the proof of this theorem is complicated, we break up the overall structure of the proof into five parts.
 
 \textbf{Proof Structure for Theorem~\ref{theorem:connected}}:
 \begin{enumerate}
-\item Select a particular set of edges $F \subseteq E$ of size at most $\Omega(\dfrac{k}{\log n})$. 
-\item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for connectivity by claiming that the total $load$ on the edges in low. (This is Lemma~\ref{lem:notbad}). 
-\item Condition on this probability to show that if we remove $\text{map}(F)$ from the tree, we still have sufficient flow from each $S_i$ to $T_i$. Each flow path must go up the tree to some common ancestor $v$ and then back down.
-\item Then we will claim that some $v$ gets $q$-marked for some $q$ and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $S_i$ and $T_i$, and so the path will be included with sufficient probability and exclude $F$.
-\item We finally union bound over all $F$ and over all $i$ to show that we succeed with constant probability. 
+\item Fix a particular set of edges $F \subseteq E$ of size at most $\frac{k}{16\alpha} = \Omega(\frac{k}{\log n})$. 
+\item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for graph connectivity by claiming that the total $load$ on the edges in low. (This is Lemma~\ref{lem:notbad}). 
+\item Condition on the event of $F$ not being necessary to show that if we remove $\text{map}(F)$ from the tree, we still have sufficient flow from each $S_i$ to $T_i$. Note that any flow paths in the tree must go up the tree to some common ancestor $v$ and then back down. Think of these nodes $v$ as ``turning points".
+\item Claim that any turning point $v$ will get $q$-marked for some $q$ and so the RoundGKR algorithm which is rooted at $v$ (recall that we run iterations of the RoundGKR algorithm for any node $v$ that gets $q$-marked) finds a path from $v$ to $S_i$ and from $v$ to $T_i$. We show that this path is found with sufficient probability.
+\item We union bound over all possible choices of $F$ and over all $i$ to show that we succeed with constant probability. From this, we conclude that removing any set of size $\frac{k}{16 \alpha}$ does not damage connectivity for any of the $(S_i,T_i)$ pairs, so each pair must be at least $\frac{k}{16\alpha} + 1$-connected.
 \end{enumerate}
 
-\begin{proof}[Proof of Lemma~\ref{lem:connected}]
-We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. I will show this happens with a probability at least $\beta$. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}}) = O(\log h + k)$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So now we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.
+\begin{proof}[Proof of Theorem~\ref{theorem:connected}]
+
+Step 1 is a trivial set-up step, and step 2 was Lemma 6~\ref{lem:notbad}. Here, we give the details of step 5.
+
+We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. We show this happens with a probability at least $\beta$, which will be some constant greater than 0. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}}) = O(\log h + k)$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.
 
 It remains to show that the probability that we find a path from $S_i$ to $T_i$ without using the edges from $F$ is at least $\beta$. We do this in the following lemma.
 
-As of right now, we have shown steps $1$, $2$ and $5$ in the proof idea of Lemma~\ref{lem:connected}. We finish the proof by showing steps $3$ and $4$. 
+(As of this point, it remains to show steps 3 and 4, which we do below.)
 
 \begin{lemma}
 Fix some $F$ and some $i$, where $|F| < \dfrac{16k}{\alpha}$. The probability that at round $t$ we find a path from $S_i$ to $T_i$ without using edges from $F$ is at least some constant $\beta > 0$. 
 \end{lemma}
 
 \begin{proof}
-We condition on the probability that $F$ is good at round $t$, which by Lemma~\ref{lem:notbad} is at least $\frac{1}{2}$. Now we can set the $y$ terms of $F_T = \text{map}^{-1}(F)$ to zero, in order to avoid picking an edge in $F$. 
 
-Since we have a good embedding with respect to $F$. The assumption was that $G$ can support a flow of at least $k$ in the original graph (by the solution to the fractional linear program). Recall that we reweighed the values $x$ by $\frac{4}{k}$, so we can support a flow of at least $4$ in the original graph with $x'$. So by Lemma~\ref{lem:mapflows}, $T$ supports a flow from $S_i' = \text{map}^{-1}(S_i)$ to $T_i' = \text{map}^{-1}(T_i)$ of value at least $4$. 
+For this lemma, we give a very extensive proof sketch. The goal is to convince the reader that this claim is true, but since the proof is incredibly detail heavy, we will gloss over some minor points.
 
-Removing the total capacity of $\frac{1}{2}$, we are left with a flow of $2 - \frac{1}{2} = \frac{3}{2}$. In particular, we can support a unit flow from $S_i'$ to $T_i'$. That unit flow can be decomposed into paths $P_1, ..., P_z$, disregarding paths with very small amount of flow $(\leq \frac{1}{2n^2})$. Each flow path goes up from a leaf, turns at some $v$, and then goes down to another leaf. Let $\phi_v$ be the flow turning at $v$. Let $\phi_v$ be the total flow turning at node $v$. 
+We condition on the probability that a sampled tree embedding is good with respect to $F$ at round $t$, which by Lemma~\ref{lem:notbad} is at least $\frac{1}{2}$. Now, set the edge capacities $y$ for edges in $F_T = \text{map}^{-1}(F)$ to be zero in order to avoid picking edges in $F$. 
 
-Since we support a flow of at least $\frac{3}{2}$ and we removed paths with at most $\frac{1}{2n^2}$ flow, we are left with
-\[ \sum_{v \in V_t} \phi_v \geq \frac{3}{2} - \dfrac{1}{2n^2}|E_t| \geq 1 \]
-Now $\phi_v$ falls between some $(2^{-q_v-1}, 2^{-q_v}]$ for some $q_v \in \{0, ..., 2\log_2 n\}$. Now the probability that none of the $v \in V_t$ is $q$-marked exactly at $q_v$ when we have a good embedding is at most $e^{-3/4}$ which follows by a Chernoff bound. The important thing to note is that each time we try to $q$-mark a node, it is an independent event. The expected value of the number of vertices that get $q$-marked at $q_v$ is at least $4$ and we need at least $1$. These values are sums of independent random variables, so we can apply the Chernoff bound.
+Note that since we start with a solution to the fractional LP, we assume that $G$ supports a flow of at least $k$. Recall that we reweighed the edge capacities $x$ by $\frac{4}{k}$, so we can support a flow of at least $4$ in the original graph with edge capacities $x'$. By Lemma~\ref{lem:mapflows}, any R\"{a}cke's tree embedding for $G$ will supports a flow from $S_i' = \text{map}^{-1}(S_i)$ to $T_i' = \text{map}^{-1}(T_i)$ of value at least $4$. 
 
-Conditioning on finding one such $v$, the path gets multiplied by $2^{q_v+1}$. Now it supports a flow of $1$. Lemma~\ref{lem:findpath} says the path will be included with probability at least $\Omega(\frac{1}{\log n})$ in a single round of RoundGKR. So if we repeat it $\tau'$ times, the probability we do not find the path is $1 - (1 - \Omega(1/\log n))^{\tau'}$. Letting $\tau' = O(\log n)$, we get any constant probability $\epsilon$. Since we need to find both paths from the root to both leaves, we get a failure probability of $2\epsilon$.
+Removing $F$ from the graph removes a total capacity of at most $\frac{1}{2}$, and so we are left with a flow of at least $4 - \frac{1}{2} > \frac{3}{2}$. In particular, we can support a unit flow from $S_i'$ to $T_i'$. That unit flow can be decomposed into paths $P_1, ..., P_z$ (disregard paths with very small amounts of flow $(\leq \frac{1}{2n^2})$). Each flow path goes up from a leaf, turns at some $v$, and then goes down to another leaf. Let $\phi_v$ be the total amount of flow from $S_i'$ to $T_i'$ turning at $v$. 
+
+Since we support a flow of at least $\frac{3}{2}$ and we removed paths with at most $\frac{1}{2n^2}$ flow, we are left with $\sum_{v \in V_t} \phi_v \geq \frac{3}{2} - \dfrac{1}{2n^2}|E_t| \geq 1$ units of flow. 
+
+Now since $\phi_v$ is between $\frac{1}{2n^2}$ and 1, it falls between some $(2^{-q_v-1}, 2^{-q_v}]$ for some $q_v \in \{0, ..., 2\log_2 n\}$. The probability that none of the $v \in V_T$ are $q$-marked exactly at $q_v$ when we have a good embedding is at most $e^{-3/4}$ (which can be proven by a Chernoff bound). The important thing to note is that each time we try to $q$-mark a node, it is an independent event. The expected value of the number of vertices that get $q$-marked at $q_v$ is at least $4$ and we need at least $1$. These values are sums of independent random variables, so we can apply the Chernoff bound.
+
+Conditioning on finding one such $v$, the path gets multiplied by $2^{q_v+1}$ (due to construction of the algorithm). After the scaling, it supports a flow of $1$. Lemma~\ref{lem:findpath} says the path will be included with probability at least $\Omega(\frac{1}{\log n})$ in a single round of RoundGKR. So if we repeat it $\tau'$ times, the probability we do not find the path is $1 - (1 - \Omega(1/\log n))^{\tau'}$. Letting $\tau' = O(\log n)$, we get any constant probability $\epsilon$. Since we need to find both paths from the root to both leaves, we get a failure probability of $2\epsilon$.
 
 So the probability that we find a path outside of $F$ is at least one minus the union bound over failure probabilities. This is $1 - \frac{1}{2} - e^{-3/4} - 2\epsilon > 0$. 
 \end{proof}
 
-This concludes steps $3$ and $4$ of the proof idea for Lemma~\ref{lem:connectivity}. This finishes the proof that after running the rounding algorithm, each $(S_i, T_i)$ tuple will have $\Omega(\frac{k}{\log n})$ paths connecting $S_i$ to $T_i$. 
+This concludes steps $3$ and $4$ of the proof idea. This finishes the proof that after running the rounding algorithm, each $(S_i, T_i)$ tuple will have $\Omega(\frac{k}{\log n})$ paths connecting $S_i$ to $T_i$. 
 
 \end{proof}
 
-%
-%\section{Potential Improvements}
-%
-%There seems to be a trade off in the algorithm between finding flow paths between many groups at once and searching for nodes the flow paths traverse. In the original algorithm, we must iterate through each $v \in V_T$ and run some RoundGKRrounds on its subtree. If there are multiple flow paths from different groups, say $(S_1', T_1')$ and $(S_2', T_2')$ going through $v$, then the original algorithm could find both at once. We could be finding $h$ paths with $O(\log n)$ cost (since running RoundGKR on each subtree makes each edge appear in $O(\log n)$ subtrees). 
-%
-%If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). We can run the algorithm without looking for the nodes where the flow paths turn. In particular, we could treat it as many different instances of the Group Steiner Tree problem. The algorithm would be:
-%\begin{codebox}
-%\li Set $H \leftarrow \emptyset$
-%\li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
-%\li Let $x' \leftarrow x*\frac{4}{k}$. 
-%\li Let $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
-%\li \For $\tau$ rounds \Do
-%\li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
-%\li \For $q = 0, ..., 2\log n$ \Do
-%\li \For \For $i \in [h]$ and $s \in S_i'$ \Do
-%\li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $s$
-%\li \If $s$ is $q$-marked \Then
-%\li Set $y^{s, q}\leftarrow 2^{q+1}y$ and $E^{s,q} \leftarrow \emptyset$.
-%\li \For $\tau'$ iterations, \Do
-%\li $E^{s,q} \leftarrow E^{s,q} \cup$ RoundGKR$(T_s, s, y^{s,q})$ \End
-%\li $H \leftarrow H \cup \text{map}(E^{s,q})$ \End \End \End \End
-%\li return $H$
-%\end{codebox}
-%The main difference lies in line 8. Instead of iterating through all $v \in V_T$ to find where the flow path turns, we take advantage of knowing where the flow begins. We know all flow paths go from $S_i'$ to $T_i'$, so we make $s \in S_i'$ the root of the tree. It is unnecessary to look for where the flow turns. We still have to iterate through $q= 0, ..., 2\log n$, since the flow of at least $1$ between $S_i'$ and $T_i'$ might be divided among different flow paths starting at different nodes in $S_i'$. This gets rid of the $O(\log n)$ factor in the cost because of the height, and adds a factor of $S$.
-%
-%Lemma~\ref{lem:connected} still holds. Since we know exactly where the flow paths must start.
-%
-%\begin{lemma}
-%The above algorithm has $\textbf{E}[c(H)] = O(S\log^3 n(\dfrac{\log h}{k} + 1))*c(x)$.
-%\end{lemma}
-%
-%\begin{proof}
-%The proof is the same as the proof of Lemma~\ref{lem:cost}. The only difference is that instead of each edge being included in at most $height(T)$ RoundGKR steps, we include it in at most $S$ RoundGKR steps. 
-%\end{proof}
-%
-%Therefore, if $S = o(\log n)$, it is better to run this modified algorithm. Along similar lines, if $\sum_{i \in [h]} |T_i| = T$ is small, then we could compress the R\"{a}cke tree to contain only the leaves we want. If $T = O(\log n)$, then the tree could be compressed to size $O(\log n)$, and so we would find unit flow paths with probability $\Omega(\frac{1}{\log \log n})$. This means we could reduce $\tau'$ to $O(\log \log n)$ and decrease our approximation ratio.
-%
-%Now the question becomes, can we reduce $S$ to $h$? One possible idea is to join all the nodes in $S_i'$. This would destroy the tree property for RoundGKR, but maybe we can disregard some cycles (at least if we analyzed the case with unit costs on the edges). \cite{ssc} uses RoundGKR and R\"{a}cke trees as black boxes, so maybe there is some hope. If this is possible, then our competitiveness would be $O(h\log^3n(\dfrac{\log h}{k} + 1))$. Now if $h = o(\log n)$, then we would prefer this algorithm.
+\section{Conclusion}
+
+In this paper, we introduced the Survivable Set Connectivity problem along with the only known approximation algorithm for it. To present the algorithm, we formulated a linear program for the problem, gave a type of tree embedding for general graphs, and a rounding procedure that works exclusively on trees.
+
+It seems that there is much work for improving the algorithm, which currently has a $\log^4(n)$ term in the approximation ratio. In an optional section following this conclusion, we give some of our own ideas for potential improvements. We were able to shave one of the $\log(n)$ factors in a very special case, but we did not think that our improvements were substantial enough to deserve a large section in this paper.
+
+\section{Optional Section: Minor Potential Improvements}
+
+To Prof. Karger: This section is completely optional, and not part of our paper. As a group, we were leaning towards not including it at all, but we wanted to show that we had thought about the algorithm deeply outside of just rewriting it.
+
+There seems to be a trade off in the algorithm between finding flow paths between many groups at once and searching for nodes the flow paths traverse. In the original algorithm, we must iterate through each $v \in V_T$ and run some RoundGKRrounds on its subtree. If there are multiple flow paths from different groups, say $(S_1', T_1')$ and $(S_2', T_2')$ going through $v$, then the original algorithm could find both at once. We could be finding $h$ paths with $O(\log n)$ cost (since running RoundGKR on each subtree makes each edge appear in $O(\log n)$ subtrees). 
+
+If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). We can run the algorithm without looking for the nodes where the flow paths turn. In particular, we could treat it as many different instances of the Group Steiner Tree problem. The algorithm would be:
+\begin{codebox}
+\li Set $H \leftarrow \emptyset$
+\li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
+\li Let $x' \leftarrow x*\frac{4}{k}$. 
+\li Let $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
+\li \For $\tau$ rounds \Do
+\li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
+\li \For $q = 0, ..., 2\log n$ \Do
+\end{codebox}
+\begin{codebox*}
+\li \For \For $i \in [h]$ and $s \in S_i'$ \Do
+\li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $s$
+\li \If $s$ is $q$-marked \Then
+\li Set $y^{s, q}\leftarrow 2^{q+1}y$ and $E^{s,q} \leftarrow \emptyset$.
+\li \For $\tau'$ iterations, \Do
+\li $E^{s,q} \leftarrow E^{s,q} \cup$ RoundGKR$(T_s, s, y^{s,q})$ \End
+\li $H \leftarrow H \cup \text{map}(E^{s,q})$ \End \End \End \End
+\li return $H$
+\end{codebox*}
+The main difference lies in line 8. Instead of iterating through all $v \in V_T$ to find where the flow path turns, we take advantage of knowing where the flow begins. We know all flow paths go from $S_i'$ to $T_i'$, so we make $s \in S_i'$ the root of the tree. It is unnecessary to look for where the flow turns. We still have to iterate through $q= 0, ..., 2\log n$, since the flow of at least $1$ between $S_i'$ and $T_i'$ might be divided among different flow paths starting at different nodes in $S_i'$. This gets rid of the $O(\log n)$ factor in the cost because of the height, and adds a factor of $S$.
+
+Theorem~\ref{theorem:connected} still holds since we know exactly where the flow paths must start.
+
+\begin{lemma}
+The above algorithm has $\textbf{E}[c(H)] = O(S\log^3 n(\dfrac{\log h}{k} + 1))*c(x)$.
+\end{lemma}
+
+\begin{proof}
+The proof is the same as the proof of Lemma~\ref{lem:cost}. The only difference is that instead of each edge being included in at most $height(T)$ RoundGKR steps, we include it in at most $S$ RoundGKR steps. 
+\end{proof}
+
+Therefore, if $S = o(\log n)$, it is better to run this modified algorithm. Along similar lines, if $\sum_{i \in [h]} |T_i| = T$ is small, then we could compress the R\"{a}cke tree to contain only the leaves we want. If $T = O(\log n)$, then the tree could be compressed to size $O(\log n)$, and so we would find unit flow paths with probability $\Omega(\frac{1}{\log \log n})$. This means we could reduce $\tau'$ to $O(\log \log n)$ and decrease our approximation ratio.
+
+Now the question becomes, can we reduce $S$ to $h$? One possible idea is to join all the nodes in $S_i'$. This would destroy the tree property for RoundGKR, but maybe we can disregard some cycles (at least if we analyzed the case with unit costs on the edges). \cite{ssc} uses RoundGKR and R\"{a}cke trees as black boxes, so maybe there is some hope. If this is possible, then our competitiveness would be $O(h\log^3n(\dfrac{\log h}{k} + 1))$. Now if $h = o(\log n)$, then we would prefer this algorithm.
 
 \bibliography{references}
 \bibliographystyle{splncs}
