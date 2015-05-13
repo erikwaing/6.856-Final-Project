@@ -23,6 +23,7 @@
 \newtheorem{proposition}{Proposition}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
 
 \begin{document}
 \maketitle
@@ -371,17 +372,21 @@ From Lemma~\ref{lem:rload}, we know that
 where the last inequality comes from our assumption about the size of $F$. Invoking Markov's inequality, the probability that the sum of the loads exceeds $1/2$ is at most $1/2$, so the probability of a bad event is at most $\frac{1}{2}$. 
 \end{proof}
 
-\begin{lemma}[\cite{ssc}]
-\label{lem:connected}
-With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16\alpha} + 1$ edge connected in $H$. 
-\end{lemma}
+Now, we can state the theorem we need for the desired connectivity claim. Note that since $\alpha = O(\log n)$, the following result says that between each $S_i$ and $T_i$, we have $\Omega(\frac{k}{\log n})$ paths.
 
-\textbf{Proof Idea of Lemma~\ref{lem:connected}}:
+\begin{theorem}[\cite{ssc}]
+\label{theorem:connected}
+With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16\alpha} + 1$ edge connected in $H$. 
+\end{theorem}
+
+As the proof of this theorem is complicated, we break up the overall structure of the theorem into five parts.
+
+\textbf{Proof Structure for Theorem~\ref{theorem:connected}}:
 \begin{enumerate}
-\item Set a particular set of edges $F$ of size at most $\Omega(\dfrac{k}{\log n})$. 
+\item Select a particular set of edges $F \subseteq E$ of size at most $\Omega(\dfrac{k}{\log n})$. 
 \item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for connectivity by claiming that the total $load$ on the edges in low. (This is Lemma~\ref{lem:notbad}). 
-\item We will condition on this probability to show that if we remove $\text{map}(F)$ on the tree, we still have sufficient flow from each $s_i$ to $t_i$. Each flow path must go up the tree to some common ancestor $v$ and then back down.
-\item Then we will claim that some $v$ gets $q$-marked for some $q$ and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $s_i$ and $t_i$, and so the path will be included with sufficient probability and exclude $F$.
+\item Condition on this probability to show that if we remove $\text{map}(F)$ from the tree, we still have sufficient flow from each $S_i$ to $T_i$. Each flow path must go up the tree to some common ancestor $v$ and then back down.
+\item Then we will claim that some $v$ gets $q$-marked for some $q$ and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $S_i$ and $T_i$, and so the path will be included with sufficient probability and exclude $F$.
 \item We finally union bound over all $F$ and over all $i$ to show that we succeed with constant probability. 
 \end{enumerate}
 
@@ -389,7 +394,6 @@ With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16
 We fix an $F$ of size at most $\frac{k}{16\alpha}$ and an $i$ and show that $(S_i, T_i)$ are connected with an edge outside of $F$. I will show this happens with a probability at least $\beta$. So the probability of failure is $(1-\beta)$. If we repeat this $\tau = \frac{1}{\beta}\ln(4hn^{\frac{k}{16\alpha}}) = O(\log h + k)$ times, then our failure probability goes down to $\dfrac{1}{4hn^{\frac{k}{16\alpha}}}$. So now we take the union bound over all of $F$ and over all $i$, so we get probability of failure at most $\frac{1}{4}$.
 
 It remains to show that the probability that we find a path from $S_i$ to $T_i$ without using the edges from $F$ is at least $\beta$. We do this in the following lemma.
-\end{proof}
 
 As of right now, we have shown steps $1$, $2$ and $5$ in the proof idea of Lemma~\ref{lem:connected}. We finish the proof by showing steps $3$ and $4$. 
 
@@ -414,6 +418,9 @@ So the probability that we find a path outside of $F$ is at least one minus the 
 \end{proof}
 
 This concludes steps $3$ and $4$ of the proof idea for Lemma~\ref{lem:connectivity}. This finishes the proof that after running the rounding algorithm, each $(S_i, T_i)$ tuple will have $\Omega(\frac{k}{\log n})$ paths connecting $S_i$ to $T_i$. 
+
+\end{proof}
+
 %
 %\section{Potential Improvements}
 %
