@@ -128,9 +128,9 @@ There is a natural way to map multi-commodity flows between $G$ and $T$. In part
 \text{ }\hspace{.3in} Certain edges are bolded to highlight the effect of $\mathrm{map}$ on edges. Since the $\mathrm{map}$ function maps edges in the tree to paths in $G$, we have that the bolded edge from 3 to 5 in the tree maps to the bolded length 1 path from 3 to 5 in the graph. The bolded edge from 5 to 5 maps to the empty path of length 0 from 5 to 5 in the graph. The bolded edge from 4 to 5 maps to the bolded path of length 1 from 4 to 5 in the graph.}
 \end{figure}
 
-Lastly, we define the distribution $\mathcal{D}$ as the uniform distribution over all possible R\"{a}cke's tree embeddings for a given graph $G$. There is a polynomial time algorithm for sampling from this distribution, given in \cite{racke}. This distribution $\mathcal{D}$ will be important for describing the SSC algorithm, as the algorithm will sample from it.\\
+We define the distribution $\mathcal{D}$ as the uniform distribution over all possible R\"{a}cke's tree embeddings for a given graph $G$. There is a polynomial time algorithm for sampling from this distribution, given in \cite{racke}. This distribution $\mathcal{D}$ will be important for describing the SSC algorithm, as the algorithm will sample from it.\\
 
-\noindent \textbf{Additional Details.} For the remainder of this section, we provide a number of definitions and statements regarding R\"{a}cke's trees that will be used to wrap up the analysis of Lemma 5 in Section 6.2. They are provided here for the sake of completeness, but the reader may skip this section and refer to it if interested while reading the proof of Lemma 5.
+Lastly, we introduce the idea of load.
 
 \begin{definition}
 Given a R\"{a}cke's tree, the load on an edge of the graph $e \in E$ is
@@ -141,6 +141,7 @@ load(e) &= \sum_{f \in \text{map}^{-1}(e)} y_f,
 We can also define the relative load, $rload(e) = load(e)/x_e$.
 
 We provide intuition behind the definition of load. Note that in Figure 1, $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. As an immediate consequence of this, we can see that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load measures how necessary an edge is for connectivity. 
+\noindent \textbf{Additional Details.} For the remainder of this section, we provide a number of statements regarding R\"{a}cke's trees that will be applied to complete the analysis of the algorithm in Section 6. They are provided here for the sake of completeness, but the reader may skip this section and refer to it if interested while reading the proofs in Section 6.
 
 The following lemmas are due to R\"{a}cke, and we state them without proof. Their proofs can be found in \cite{racke}.
 
@@ -278,7 +279,7 @@ Using this, we can bound the probability that a particular edge $e$ of the origi
 \begin{align}
  \textbf{E}_{R}[X_e] &\leq \tau \sum_{e' \in \mathrm{map}^{-1}(e)} O(\log^3 n) y_{e'} 
 \end{align}
-where the expectation $\text{E}_{R}[X_e]$ is over the random choices of the algorithm, after choosing a R\"{a}cke's tree. The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
+where the expectation $\textbf{E}_{R}[X_e]$ is over the random choices of the algorithm, after choosing a R\"{a}cke's tree. The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
 
 The remainder of this proof relies heavily on the definitions and lemmas stated at the end of Section 3. We apply those results in order to simplify the inequality we have above and get our final result. We first take the expectation over the random choice of drawing a R\"{a}cke's tree from the distribution $\mathcal{D}$. This gives
 \begin{align}
@@ -289,10 +290,10 @@ The remainder of this proof relies heavily on the definitions and lemmas stated 
 Recall that in Section 3, we defined $load(e) = \sum_{e' \in \mathrm{map}^{-1}(e)} y_{e'}$ and $rload(e) = load(e)/x_e$. We thus rewrite the inequality as
 \begin{align}
               \textbf{E}_{\mathcal{D}}[E_{R}[X_e]]  & \leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[load(e)]\\
-&\leq O(\log^3 n) \tau E[rload(e) x_e'] \\
+&\leq O(\log^3 n) \tau \textbf{E}[rload(e) x_e'] \\
                 &\leq O(\log^3 n) \tau \frac{4}{k} \alpha x_e
 \end{align}
-The last line of the above computation follows from Lemma 2, which gives a bound on the value of $rload(e)$. To simplify notation, we write $\text{E}[X_e]$ as the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. So our final inequality is 
+The last line of the above computation uses the value of $\alpha$, defined in Section 3 as $\alpha = max_{e \in E}\textbf{E}[rload(e)]$. We have from Lemma 2 that $\alpha$ is $O(\log n)$. To simplify notation, we write $\textbf{E}[X_e]$ as the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. So our final inequality is 
 \begin{align}
  \textbf{E}[X_e] &\leq \frac{O(\log^4 n)\tau}{k} x_e 
 \end{align}
@@ -319,26 +320,28 @@ From here, we simply apply linearity of expectation to bound the total cost. We 
 \end{align}
 So when $\tau = O(\log h + k)$, we get our desired approximation.
 \end{proof}
+%
+%\begin{figure}
+%\label{fig:roundgkronnode}
+%\centering
+%\includegraphics[width=0.6\linewidth]{RoundGKRonNode.pdf}
+%\caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
+%\end{figure}
 
-\begin{figure}
-\label{fig:roundgkronnode}
-\centering
-\includegraphics[width=0.6\linewidth]{RoundGKRonNode.pdf}
-\caption{Execution of GKR on some subtree rooted at $v$ in a particular round finding paths to $s_i$ and $t_i$.}
-\end{figure}
-
-Having established that the expected cost is only a polylogarithmic factor away from the optimum, it remains to show that the edges chosen do in fact form a graph which connects $(S_i, T_i)$ with $\Omega(\frac{k}{\log n})$ disjoint paths for each $i$. We will need the following definition.
-
+Having established that the expected cost is only a polylogarithmic factor away from the optimum, it remains to show that the edges chosen do in fact form a graph which connects $(S_i, T_i)$ with $\Omega(\frac{k}{\log n})$ disjoint paths for each $i$. We prove this in the next section.
 
 \subsection{Claim B}
 
+First, we define a notion of \emph{good} and \emph{bad} tree embeddings with respect to a subset of edges $F \subseteq E$.
+
+
 \begin{definition}
-For some set of edges $F \subseteq E$, the sampled tree embedding, $(T, y, \text{map})$ is bad if $F_T = \text{map}^{-1}(F)$ 
+For a set of edges $F \subseteq E$, let $F_T = \text{map}^{-1}(F)$. Then a R\"{a}cke's tree embedding is bad for $F$ if 
 \[ \sum_{e' \in F_T} y_{e'} \geq \frac{1}{2} \]
 And good otherwise.
 \end{definition}
 
-Intuitively, bad sets correspond to sets which are necessary in the graph. We want graphs to be good with respect to sets of size $\Omega(\frac{k}{\log n})$ in order to ensure connectivity even if we remove them.
+Intuitively, if a tree embedding is bad with respect to a set $F$, then $F$ is necessary for connectivity in the graph. For our argument, we will want tree embeddings to be good with respect to sets of size $\Omega(\frac{k}{\log n})$ in order to ensure connectivity even if these sets are removed.
 
 \begin{lemma}[\cite{ssc}]
 \label{lem:notbad}
@@ -346,15 +349,15 @@ Fix some $F$ of size at most $\dfrac{k}{16 \alpha}$. Then the probability that a
 \end{lemma} 
 
 \begin{proof}
-Suppose we have a bad embedding for the set $F$. Then 
+Suppose we have a bad embedding for the set $F$. Using the definition of load, we write
 \begin{align}
 \sum_{e \in F} load(e)&= \sum_{e \in F} \sum_{e' \in \text{map}^{-1}(e)} y_{e'} \\
                     &\geq \sum_{e' \in F_T} y_{e'} \\
                     &\geq \frac{1}{2}
 \end{align}
-Where the first inequality we get from taking the sum over the union versus the disjoint union, and the second inequality from the assumption that the tree embedding is bad. 
+where the first inequality arises from comparing a sum over a union to a sum over a disjoint union (summands in the first line are counted at least as many times as summnds on the second line), and the second inequality from the assumption that the tree embedding is bad for F.
 
-Therefore, a bad tree means that the load of the set of $F$ is more than $\frac{1}{2}$. Therefore,
+Therefore, a bad tree means that the load of the set of $F$ (shorthand for the sum of the loads of the edges in $F$) is more than $\frac{1}{2}$. Therefore,
 \begin{align}
 Pr[\text{pick a bad tree for $F$}] &\leq Pr[ \sum_{e\in F} load(e) \geq \frac{1}{2}]
 \end{align}
@@ -365,7 +368,7 @@ From Lemma~\ref{lem:rload}, we know that
                                    & \leq \dfrac{4\alpha}{k} |F| \\
                                    &\leq \frac{1}{4}
 \end{align}
-Since we limited the size of $F$. Now invoking Markov's inequality, we know that the probability of bad event is at most $\frac{1}{2}$. 
+where the last inequality comes from our assumption about the size of $F$. Invoking Markov's inequality, the probability that the sum of the loads exceeds $1/2$ is at most $1/2$, so the probability of a bad event is at most $\frac{1}{2}$. 
 \end{proof}
 
 \begin{lemma}[\cite{ssc}]
@@ -378,7 +381,7 @@ With probability at least $\frac{3}{4}$, all set pairs are at least $\frac{k}{16
 \item Set a particular set of edges $F$ of size at most $\Omega(\dfrac{k}{\log n})$. 
 \item Argue that with probability at most $\frac{1}{2}$, the edges in $F$ are not necessary for connectivity by claiming that the total $load$ on the edges in low. (This is Lemma~\ref{lem:notbad}). 
 \item We will condition on this probability to show that if we remove $\text{map}(F)$ on the tree, we still have sufficient flow from each $s_i$ to $t_i$. Each flow path must go up the tree to some common ancestor $v$ and then back down.
-\item Then we will claim that at some $v$, it gets marked and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $s_i$ and $t_i$, and so the path will be included with sufficient probability and exclude $F$.
+\item Then we will claim that some $v$ gets $q$-marked for some $q$ and the RoundGKR algorithm which is rooted at $v$ finds the two paths from $v$ to $s_i$ and $t_i$, and so the path will be included with sufficient probability and exclude $F$.
 \item We finally union bound over all $F$ and over all $i$ to show that we succeed with constant probability. 
 \end{enumerate}
 
