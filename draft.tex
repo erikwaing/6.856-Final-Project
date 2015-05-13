@@ -123,13 +123,6 @@ For edges $e = (u,v) \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e 
 
 Finally, for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected components, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_{e'}$, the total edge capacity crossing the cut.
 
-\begin{figure}
-\centering
-\label{fig:rackecut}
-\includegraphics[width=0.5\linewidth]{Rackecut.pdf}
-\caption{R\"{a}cke's tree cut induced by an edge in the tree.}
-\end{figure}
-
 \begin{definition}
 Given a R\"{a}cke tree, the load on an edge of the graph $e \in E$ is
 \begin{align}
@@ -141,20 +134,25 @@ rload(e) = \dfrac{load(e)}{x_e}.
 \end{align}
 \end{definition}
 
+Figure~\ref{fig:racketree} shows an example R\"{a}cke's tree. We see a tree on the left-hand side which corresponds to the graph on the right-hand side. Each node is labeled by a number. The number indicates the projection of $\mathrm{map}$. A node of the tree labeled $1$ corresponds to the node in the graph labeled $1$. As you can see, the leaves are in bijection with the nodes of the graph. 
+
+In addition, edges in the tree correspond to paths in the graph. The bolded edges of the tree map to the bolded edges in the graph. The top-most edge in the tree connects nodes $3$ and $5$, and that edge maps to the edge in the graph connecting $3$ and $5$. Then the bolded edge in the tree connecting $5$ to $5$ corresponds to the empty path. The bolded edge of the tree connecting $5$ to $4$ corresponds to the bolded edge in the graph connecting $4$ and $5$. Paths in the tree correspond to paths in the graph. 
+
+We also note the capacity of the edge in the tree labeled $y$ is $x_1 + x_2 + x_3$. Edge $y$ disconnects the leaves into two groups, $S'$ and the rest. $S'$ maps bijectively to $S$. $S$ induces a cut on the graph, which cuts edges $x_1$, $x_2$, and $x_3$. Therefore, the capacity of $y$ (as defined by R\"{a}cke's trees) is the sum of the capacities of $x_1,x_2,$ and $x_3$. 
+
+Another thing to notice is that $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. An immediate consequence, which we can see from the load is that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load will measure how necessary an edge is for connectivity. 
+
+\begin{figure}
+\label{fig:racketree}
+\includegraphics[width=\linewidth]{RackeTree.pdf}
+\caption{A R\"{a}cke's tree example. A R\"{a}cke tree on the left maps to a graph on the right. The map on vertices is defined by the labelings on the nodes. The bolded edges map to the bolded edges. Edge $y$ defines a set of leaves $S'$, which defines a cut on the graph, $S$. $S$ cuts edges $x_1, x_2,$ and $x_3$; therefore, $y = x_1 + x_2 + x_3$.}
+\end{figure}
+
 The usefulness of R\"{a}cke's trees becomes apparent when we consider multi-commodity flows. Recall that the multi-commodity flow problem specifies $k$ different commodities, where each commodity $i$ must be routed from source $s_i$ to sink $t_i$, subject to constraints on the capacity of each edge. The resulting flow can be represented as a set of functions $\{ f_i \}$, where $f_i(e)$ is the nonnegative real number amount of commodity $i$ flowing on edge $e$. 
 
 There is a natural way to map multi-commodity flows between $G$ and $T$. In particular, suppose we have a multi-commodity flow $\{ f_i \}$ on $G$. For each $i$, if there are $f_i$ units of flow going from $s_i$ to $t_i$ in $G$, we route $f_i$ units of flow in the $T$ from $\mathrm{map}^{-1}(s_i)$ to $\mathrm{map}^{-1}(t_i)$. If we are given a multicommodity flow $\{ f_i^T \}$ in $T$, then if we have $f_i^T(e)$ units of flow on edge $e$ in $T$, then we route $f_i^T(e)$ units of flow through the path $\mathrm{map}(e)$ in $G$ (recall that edges in $T$ map to paths in $G$).
 
-Figure~\ref{fig:racketree} gives an example of the flow correspondence between a graph and it's associated R\"{a}cke's tree. Each red vertex of the tree is mapped to another red vertex on the graph, and the edge between them corresponds to a path between the red vertices. This gives us a simple way to map flows from R\"{a}cke's trees to the graph and vice-versa. 
-
-\begin{figure}
-\label{fig:racketree}
-\centering
-\includegraphics[width=0.8\linewidth]{Rackeembeddinggraph.pdf}
-\caption{Example Racke Tree where red nodes are mapped and edge maps to a path.}
-\end{figure}
-
-There are some crucial properties of R\"{a}cke's trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to [CITE] for the proofs.
+There are some crucial properties of R\"{a}cke's trees which we will treat as black boxes. We will define these as lemmas without proof, and we refer to \cite{racke} for the proofs.
 
 \begin{lemma}[\cite{racke}]
 \label{lem:mapflows}
@@ -197,7 +195,7 @@ If we relax the integer linear program to a linear program and solve it, we can 
 
 The RoundGKR procedure simply starts at the root $r$ and builds the subtree $H$ by working its way down the original tree, $T$. It decides whether or not to include edge $e$ only once it has included edge $p(e)$ (if ever). At this step, it includes $e$ with probability $\frac{y_e}{y_{p(e)}}$. A simple inductive argment shows that an edge $e$ is chosen with probability $y_e$ (proof sketch: assume by induction that we know $Pr[\text{include $p(e)$}] = y_{p(e)}$. Then $Pr[\text{include $e$}] = Pr[\text{include $e$ $|$ include $p(e)$}]*Pr[\text{include $p(e)$}] = \frac{y_e}{y_{p(e)}}y_{p(e)} = y_e$.)
 
-The important property of the algorithm can be summarized in the following lemma, whose proof can be found in [CITE].
+The important property of the algorithm can be summarized in the following lemma, whose proof can be found in \cite{GKR}.
 
 \begin{lemma}[\cite{GKR}]
 \label{lem:findpath}
