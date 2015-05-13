@@ -231,7 +231,7 @@ The algorithm first solves the linear programming relaxation, which produces a v
 
 The next step, which the algorithm repeats $\tau = \log(h) + k$ times, begins by sampling a random R\"{a}cke's tree embedding for the graph $G$. Then, we create an index $q$ which scrolls from 0 to $2\log n$. For each vertex of the tree embedding, and for all possible values of the index $q$, we perform an operation called $q$-marking. This simply involves labeling each vertex with the values of $q$ that we $q$-mark it with. Therefore, any given vertex can be $q$-marked up to $2\log n + 1$ times. For each value of $q$, we $q$-mark a given vertex with probability $\min\{1, \dfrac{4}{2^q}\}$. Then for each vertex $v \in E_T$, we go through all values of $q$ such that $v$ was $q$-marked and perform the following steps: 1) Create a new capacity function $y^{v,q}$ that is the original capacity function $y$ for the tree embedding, scaled up by a factor of $2^{q+1}$. 2) Initialize the set $E^{v,q}$ to be empty. 3) For $\tau' = O(\log n)$ iterations, run the RoundGKR procedure on the R\"{a}cke's tree, with the given capacity function $y^{v,q}$. Whenever edges are output by the procedure, we add them to $E^{v,q}$.
 
-The purpose of these scaling constants is to ensure that the RoundGKR procedure, which looks for paths of value 1, will actually see these paths. We preserve the fact that paths with low capacity are chosen with lower probability. The reason why we have $\tau' = O(\log n)$ iterations is because is because  Lemma~\ref{lem:findpath} shows that RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$. $O(\log n)$ repetitions ensure a constant probability of finding such paths.
+The purpose of these scaling constants is to ensure that the RoundGKR procedure, which looks for paths of value 1, will actually see these paths. We preserve the fact that paths with low capacity are chosen with lower probability. The reason why we have $\tau' = O(\log n)$ iterations is because is because  Lemma~\ref{lem:findpath} shows that RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$. $O(\log n)$ repetitions ensure a constant probability of finding such paths.t
 
 Finally, the algorithm concludes by spitting out all of the edges ever returned by any RoundGKR procedure run on any of the iterations for any of the values of $q$ for any of the nodes $v$ that are $q$-marked.
 %
@@ -257,12 +257,16 @@ We first prove Claim A assuming that Claim B is true, and then we prove claim B.
 $\textbf{E}[c(H)] = O(\log^4n(\frac{\log h}{k}+1)) * c(x)$, where $c(x) = \sum_e c(e)x_e$. 
 \end{lemma}
 
+Observe that $c(x)$ is the value of the LP-optimum, which must be at least as good as the true optimum of the problem. Therefore, this lemma shows that the cost of the algorithm's solution is within an $O(\log^4n(\frac{\log h}{k}+1))$ factor of the optimum.
+
 \begin{proof}
 We prove this by bounding the probability that a given edge is included in $H$ by $O(\log^4n(\frac{\log h}{k} + 1))x_e$. The claim then follows by linearity of expectation.
 
-Let $(T = (V_t, E_t), y, \text{map})$ be a R\"{a}cke's tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
+Let $(T = (V_T, E_T), y, \text{map})$ be a R\"{a}cke's tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
 
-For a given edge $e'$, there are at most $height(T)$ ancestors, which means that there are at most $height(T)$ different vertices $v$ that, if $q$-marked, may lead to $e'$ being included. For each $v$, we must consider all $O(\log n)$ possible values of $q$. For each value of $q$, the probability of being $q$-marked is $\frac{4}{2^{q}}$. Once the vertex is $q$-marked, we have $\tau'$ trials of the RoundGKR algorithm, where in each trial, there is a $2^{q+1}y_{e'}$ chance of edge $e'$ being included (by construction of the algorithm). Multiplying these probablities together and applying a union bound over all $\tau'$ trials and over all possible values of $q$, we get an upper bound of 
+We first bound the probability that an edge $e' \in E_T$ is included, which we will then use to bound the probability the algorithm includes an edge $e \in E$.
+
+For a given edge $e' \in E_T$, there are at most $height(T)$ ancestors, which means that there are at most $height(T)$ different vertices $v$ that, if $q$-marked, may lead to $e'$ being included. For each $v$, we must consider all $O(\log n)$ possible values of $q$. For each value of $q$, the probability of being $q$-marked is $\frac{4}{2^{q}}$. Once the vertex is $q$-marked, we have $\tau'$ trials of the RoundGKR algorithm, where in each trial, there is a $2^{q+1}y_{e'}$ chance of edge $e'$ being included (by construction of the algorithm). Multiplying these probablities together and applying a union bound over all $\tau'$ trials and over all possible values of $q$, we get an upper bound of 
 
 \begin{align}
 height(T) \sum_{q=0}^{2\log n} \frac{4}{2^{q}} 2^{q+1} y_{e'} \tau' &= height(T) \tau' y_{e'} \sum_{q=0}^{2\log n} 8 = O(\log^3 n) y_{e'} 
@@ -274,20 +278,21 @@ Using this, we can bound the probability that a particular edge $e$ of the origi
 \begin{align}
  \textbf{E}_{R}[X_e] &\leq \tau \sum_{e' \in \mathrm{map}^{-1}(e)} O(\log^3 n) y_{e'} 
 \end{align}
-where the expectation $\text{E}_{R}[X_e]$ is over the random choices of the algorithm, after choosing a R\"{a}cke tree. The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
+where the expectation $\text{E}_{R}[X_e]$ is over the random choices of the algorithm, after choosing a R\"{a}cke's tree. The $\tau$ comes from a union bound over all trials. The $O(\log^3 n)y_{e'}$ comes from the first part of the proof, where we bounded the probability of including a specific $e'$. 
 
-To simplify this inequality, we apply a series of definitions and lemmas stated earlier in Section~\ref{sec:rackestrees}. 
+The remainder of this proof relies heavily on the definitions and lemmas stated at the end of Section 3. We apply those results in order to simplify the inequality we have above and get our final result. We first take the expectation over the random choice of drawing a R\"{a}cke's tree from the distribution $\mathcal{D}$. This gives
 \begin{align}
 \textbf{E}_{\mathcal{D}}[E_{R}[X_e]] &\leq \textbf{E}_{\mathcal{D}}[\tau \sum_{e' \in \mathrm{map}^{-1}(e)} O(\log^3 n) y_{e'}] \\
-               &\leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[\sum_{e' \in \mathrm{map}^{-1}(e)} y_{e'}] \\
-               & \leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[load(e)]
+               &\leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[\sum_{e' \in \mathrm{map}^{-1}(e)} y_{e'}]
 \end{align}
-where the expectation is over the choice of R\"{a}cke tree. Using the definition of $rload$, 
+
+Recall that in Section 3, we defined $load(e) = \sum_{e' \in \mathrm{map}^{-1}(e)} y_{e'}$ and $rload(e) = load(e)/x_e$. We thus rewrite the inequality as
 \begin{align}
-\textbf{E}[X_e] &\leq O(\log^3 n) \tau E[rload(e) x_e'] \\
+              \textbf{E}_{\mathcal{D}}[E_{R}[X_e]]  & \leq O(\log^3 n) \tau \textbf{E}_{\mathcal{D}}[load(e)]\\
+&\leq O(\log^3 n) \tau E[rload(e) x_e'] \\
                 &\leq O(\log^3 n) \tau \frac{4}{k} \alpha x_e
 \end{align}
-where $\text{E}[X_e]$ is the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. Lemma~\ref{lem:rload} gives a bound on the maximum relative load. $\alpha$ is bounded by $O( \log n)$, so our final inequality is 
+The last line of the above computation follows from Lemma 2, which gives a bound on the value of $rload(e)$. To simplify notation, we write $\text{E}[X_e]$ as the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. So our final inequality is 
 \begin{align}
  \textbf{E}[X_e] &\leq \frac{O(\log^4 n)\tau}{k} x_e 
 \end{align}
