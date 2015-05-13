@@ -102,18 +102,15 @@ For a given graph $G = (V, E)$ with edge capacities $x_e \geq 0$ for all $e \in 
 \begin{enumerate}
 \item For each node $v \in V_T$, $\mathrm{map}(v) \in V$. Furthermore, $\mathrm{map}$ restricted to the leaves of $T$ is a bijective function whose image contains all vertices of $G$. In other words, each leaf of the tree $T$ is in one-to-one correspondence with a vertex of the original graph, $G$.
 \item For each edge $e = (u,v) \in E_T$, $\mathrm{map}(e)$ is a set of edges that form a path between $\mathrm{map}(u)$ and $\mathrm{map}(v)$. Note that $\mathrm{map}(u)$ and $\mathrm{map}(v)$ are vertices in $G$, so $\mathrm{map}(e)$ specifies a set of edges in $G$.
-%\item For some edge $e \in E_T$, $y_e$ (the cost of the edge) is a special quantity. Removing $y_e$ cuts the tree into two components, and so the leaves in the two components form a cut $\delta(S)$. Figure~\ref{fig:rackecut} gives an example for one such cut induced by an edge.
-%\begin{align}
-%y_e &= \sum_{e' \in \delta(S)} x_e
-%\end{align}
+\item The edge capacities, $y_e$, must be set by the following procedure: The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected components, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Recall that $\delta(S)$ is the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_{e'}$, the total edge capacity crossing the cut.
 \end{enumerate}
 \end{definition}
 
-With this setup, we can define the inverse function, $\mathrm{map}^{-1}$. If we try to compute $\mathrm{map}^{-1}(v)$ for some $v \in V$, we note that multiple vertices in $T$ could map to $v$. Thus, we specify that $\mathrm{map}^{-1}(v)$ be the unique \emph{leaf} vertex in $V_T$ that maps to $v$. We will also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and we define it in the obvious way: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
+We point out a small possibility for confusion here. We think of a Racke's tree embedding as a transformation from a graph to a tree, but the $\mathrm{map}$ function used in the above definition is a function from the tree to the graph. Thus, the function that actually \emph{embeds} the graph into the tree is the inverse function, $\mathrm{map}^{-1}$.
 
-For edges $e = (u,v) \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f)$ that contain $e$. Again, this defintiion can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
+Thus, we clarify the properties of $\mathrm{map}^{-1}$. If we apply $\mathrm{map}^{-1}$ to a node in the original graph, $v \in V$, we note that multiple vertices in $T$ could map to $v$. Thus, we specify that $\mathrm{map}^{-1}(v)$ be the unique \emph{leaf} vertex in $V_T$ that maps to $v$. Recall that this uniqueness follows from the bijection property outlined in the above definition. We also consider $\mathrm{map}^{-1}$ applied to sets of vertices $W \subseteq V$, and we define it in a natural fashion: $\mathrm{map}^{-1}(W) = \bigcup_{v \in W} \mathrm{map}^{-1}(v)$.
 
-Finally, for an edge $e \in E_T$, we define $y_e$ as follows. The removal of $e$ from $T$ separates the tree into two connected components. Let $S$ be the set of vertices of $G$ mapped to by the leaves of one of the connected components, and so $V \setminus S$ is the set of vertices of $G$ mapped to by the leaves of the other connected component. Define $\delta(S)$ to be the set of edges in $E$ that cross from $S$ to $V \setminus S$. Then we set $y_e = \sum_{e' \in \delta(S)} x_{e'}$, the total edge capacity crossing the cut.
+For edges in the original graph, $e \in E$, we define $\mathrm{map}^{-1}(e) = \{ f \in E_T | e \in \mathrm{map}(f)\}$. This is simply the set of all edges $f$ in the tree $T$ that get mapped to a set of edges $\mathrm{map}(f) \subseteq E$ that contain $e$. Again, this definition can be extended to sets of edges $F \subseteq E$, so that $\mathrm{map}^{-1}(F) = \bigcup_{e \in F} \mathrm{map}^{-1}(e)$.
 
 \begin{definition}
 Given a R\"{a}cke tree, the load on an edge of the graph $e \in E$ is
