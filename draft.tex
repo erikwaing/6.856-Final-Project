@@ -39,7 +39,7 @@ In this paper, we analyze the problem of Survivable Set Connectivity (SSC), a ge
 In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be connected by $k_i$ paths, instead of just 1. More formally, the problem is:
 
 \begin{quote}
-\textbf{Input}: A graph weighted $G = (V, E)$, $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of sets $(S_i, T_i)$, along with a value $k$. \\
+\textbf{Input}: A weighted graph $G = (V, E)$, with edge cost function $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of sets $(S_i, T_i)$, along with a value $k$. \\
 \textbf{Output}: A minimum cost subgraph $H \subset G$ such that there are $k$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. 
 \end{quote}
 
@@ -51,7 +51,7 @@ The paper is organized as follows. We first present a natural integer linear pro
 
 The paper by Chalermsook et al. is the first and (currently) only paper to consider the Survivable Set Connectivity problem \cite{ssc}. Therefore, we survey the only known approximation algorithm for the problem. Chalermsook et al. noted that the original Set Connectivity problem has a large body of prior work, but they found that the best techniques for solving Set Connectivity do not translate to the Survivable variant of the problem. Thus, we present Survivable Set Connectivity as a standalone problem, despite its obvious similarities to Set Connectivity.
 
-At this time, it seems that Survivable Set Connectivity is only interesting from a theoretical standpoint, as a ``natural" generalization of Set Connectivity. It is unknown if any common real-life graph problems are naturally formulated as a Survivable Set Connectivity problem.
+At this time, it seems that Survivable Set Connectivity is motivated primarily by theoreitcal interest, as a ``natural" generalization of Set Connectivity. It is unknown if any common real-life graph problems are naturally formulated as a Survivable Set Connectivity problem.
 
 \section{An Integer Linear Program}
 
