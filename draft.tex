@@ -40,7 +40,7 @@ In this paper, we analyze the problem of Survivable Set Connectivity (SSC), a ge
 
 Note that a ``path between $S_i$ and $T_i$" refers to any path that connects a vertex in $S_i$ to a vertex in $T_i$. The cost of a subgraph is simply the sum of the cost of the subgraph edges.
 
-In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be connected by $k_i$ paths, instead of just 1. More formally, the problem is:
+In SSC, the problem is modified so that each pair of sets $(S_i,T_i)$ must be connected by $k$ paths, instead of just 1. More formally, the problem is:
 
 \begin{quote}
 \textbf{Input}: A weighted graph $G = (V, E)$, with edge cost function $c: E \rightarrow \mathbb{R}^{\geq 0}$ and a collection of $h$ tuples of the form $(S_i, T_i)$, along with a value $k$. Again, each $(S_i,T_i)$ is a pair of disjoint vertex subsets. \\
@@ -129,7 +129,7 @@ There is a natural way to map multi-commodity flows between $G$ and $T$. In part
 \text{ }\hspace{.3in} Certain edges are bolded to highlight the effect of $\mathrm{map}$ on edges. Since the $\mathrm{map}$ function maps edges in the tree to paths in $G$, we have that the bolded edge from 3 to 5 in the tree maps to the bolded length 1 path from 3 to 5 in the graph. The bolded edge from 5 to 5 maps to the empty path of length 0 from 5 to 5 in the graph. The bolded edge from 4 to 5 maps to the bolded path of length 1 from 4 to 5 in the graph.}
 \end{figure}
 
-We define the distribution $\mathcal{D}$ as the uniform distribution over all possible R\"{a}cke's tree embeddings for a given graph $G$. There is a polynomial time algorithm for sampling from this distribution, given in \cite{racke}. This distribution $\mathcal{D}$ will be important for describing the SSC algorithm, as the algorithm will sample from it.\\
+We define the distribution $\mathcal{D}$ as the distribution over R\"{a}cke's tree embeddings for a given graph $G$. There is a polynomial time algorithm for sampling from this distribution, given in \cite{racke}. This distribution $\mathcal{D}$ will be important for describing the SSC algorithm, as the algorithm will sample from it.\\
 
 Lastly, we introduce the idea of load.
 
@@ -144,7 +144,7 @@ We can also define the relative load, $rload(e) = load(e)/x_e$.
 We provide intuition behind the definition of load. Note that in Figure 1, $load(x_1) = 0$, since $\mathrm{map}^{-1}(x_1) = \emptyset$. As an immediate consequence of this, we can see that removing an edge with load 0 does not affect the connectivity of the graph. At a high level, the load measures how necessary an edge is for connectivity. \\
 \noindent \textbf{Additional Details.} For the remainder of this section, we provide a number of statements regarding R\"{a}cke's trees that will be applied to complete the analysis of the algorithm in Section 6. They are provided here for the sake of completeness, but the reader may skip this section and refer to it if interested while reading the proofs in Section 6.
 
-The following lemmas are due to R\"{a}cke, and we state them without proof. Their proofs can be found in \cite{racke}.
+The following lemmas are due to R\"{a}cke, and we state them without proof. Their proofs can be found in \cite{racke} and \cite{ssc}.
 
 \begin{lemma}[\cite{racke}]
 \label{lem:mapflows}
@@ -167,7 +167,7 @@ The height of the trees sampled is $O(\log nC)$, where $C$ is the ratio of the l
 
 \section{The RoundGKR Procedure}
 
-The final component we need for the SSC algorithm is the RoundGKR procedure, named for its inventors, Garg, Konjevod, and Ravi \cite{GKR}. This is the rounding procedure the algorithm for SSC uses, and we will see that this rounding procedure only works for trees. We introduced tree embeddings in the previous section solely because of this fact. Originally, RoundGKR was developed for the Group Steiner Tree (GST) problem. In order to explain the procedure, we give a brief overview of the problem. \\
+The final component we need for the SSC algorithm is the RoundGKR procedure, named for its inventors, Garg, Konjevod, and Ravi \cite{GKR}. This is the rounding procedure the algorithm for SSC uses, and we will see that this rounding procedure works for trees. We introduced tree embeddings in the previous section solely because of this fact. Originally, RoundGKR was developed for the Group Steiner Tree (GST) problem. In order to explain the procedure, we give a brief overview of the problem. \\
 
 Group Steiner Tree:
 \begin{quote}
@@ -178,7 +178,7 @@ Group Steiner Tree:
 The following integer linear program solves the problem exactly:
 \begin{align}
 \min & \sum c(e) y_e  \\
-\text{ s.t } & \sum_{e \in \delta(S)} y_e \geq 1, \text{ where } S_i \subset S, T_i \subset V - S\\
+\text{ s.t } & \sum_{e \in \delta(S)} y_e \geq 1, \text{ where } \{ r \} \subset S, T_i \subset V - S\\
 &y_e \in \{0,1\}
 \end{align}
 
@@ -203,7 +203,7 @@ In this section, we present the approximation algorithm given by Chalermsook et 
 
 The algorithm takes as input a graph $G = (V,E)$ with edge cost function $c$ and $h$ tuples of the form $(S_i,T_i)$ along with a value $k$. The algorithm outputs a subgraph $H \subseteq G$, represented as a set of edges of $G$, such that there are at least $\Omega(\frac{k}{\log n})$ edge-disjoint paths between $S_i$ and $T_i$ for each $i$. Recall that $k$ edge-disjoint paths was the goal, so we fall short of this requirement by a logarithmic factor. The cost of $H$, equal to the sum of the edge costs in $H$, is within a polylogarithmic factor of the optimum. 
 
-Recall that SSC-LP is the linear programming relaxation of the ILP for SSC, presented in Section 2. Also, $\mathcal{D}$ is the distribution over all possible R\"{a}cke's tree embeddings for a graph $G$, which we can sample from in polynomial time. In the algorithm, we use the variable $\tau$ set to be $\log(h)+k$, $\tau'$, set to be $O(\log n)$, and $q$ as an index. The algorithm is as follows.
+Recall that SSC-LP is the linear programming relaxation of the ILP for SSC, presented in Section 2. Also, $\mathcal{D}$ is the distribution over all possible R\"{a}cke's tree embeddings for a graph $G$, which we can sample from in polynomial time. In the algorithm, we use the variable $\tau$ set to be $O(\log(h)+k)$, $\tau'$, set to be $O(\log n)$, and $q$ as an index. The algorithm is as follows.
 
 \begin{codebox}
 \li Set $H \leftarrow \emptyset$
@@ -229,7 +229,12 @@ Here, we provide an intuitive explanation of the algorithm as well as the main m
 
 The algorithm first solves the linear programming relaxation, which produces a value of $x_e \in [0,1]$ for each edge $e \in E$. The first step is to zero out all values of $x_e < \frac{k}{n^2}$. After this, the values are scaled down from $x$ to $x'$ by a $\frac{4}{k}$ factor. Since the linear progrom ensures a fractional path of total capacity $k$ from $S_i$ to $T_i$ for each $i$, this $4/k$ scaling ensures fractional paths of total capacity $4$. Since we argued that a flow in the original graph $G$ corresponds to a flow of the same value in any corresponding R\"{a}cke's tree, the resulting tree embeddings will also have flows of value 4. 
 
-The next step, which the algorithm repeats $\tau = \log(h) + k$ times, begins by sampling a random R\"{a}cke's tree embedding for the graph $G$. Then, we create an index $q$ which scrolls from 0 to $2\log n$. For each vertex of the tree embedding, and for all possible values of the index $q$, we perform an operation called $q$-marking. This simply involves labeling each vertex with the values of $q$ that we $q$-mark it with. Therefore, any given vertex can be $q$-marked up to $2\log n + 1$ times. For each value of $q$, we $q$-mark a given vertex with probability $\min\{1, \dfrac{4}{2^q}\}$. Then for each vertex $v \in E_T$, we go through all values of $q$ such that $v$ was $q$-marked and perform the following steps: 1) Create a new capacity function $y^{v,q}$ that is the original capacity function $y$ for the tree embedding, scaled up by a factor of $2^{q+1}$. 2) Initialize the set $E^{v,q}$ to be empty. 3) For $\tau' = O(\log n)$ iterations, run the RoundGKR procedure on the R\"{a}cke's tree, with the given capacity function $y^{v,q}$. Whenever edges are output by the procedure, we add them to $E^{v,q}$.
+The next step, which the algorithm repeats $\tau = O(\log(h) + k)$ times, begins by sampling a random R\"{a}cke's tree embedding for the graph $G$. Then, we create an index $q$ which scrolls from 0 to $2\log n$. For each vertex of the tree embedding, and for all possible values of the index $q$, we perform an operation called $q$-marking. This simply involves labeling each vertex with the values of $q$ that we $q$-mark it with. Therefore, any given vertex can be $q$-marked up to $2\log n + 1$ times. For each value of $q$, we $q$-mark a given vertex with probability $\min\{1, \dfrac{4}{2^q}\}$. Then for each vertex $v \in V_T$, we go through all values of $q$ such that $v$ was $q$-marked and perform the following steps:
+\begin{enumerate}
+\item Create a new capacity function $y^{v,q}$ that is the original capacity function $y$ for the tree embedding, scaled up by a factor of $2^{q+1}$.
+\item Initialize the set $E^{v,q}$ to be empty. 
+\item For $\tau' = O(\log n)$ iterations, run the RoundGKR procedure on the R\"{a}cke's tree, with the given capacity function $y^{v,q}$. Whenever edges are output by the procedure, we add them to $E^{v,q}$.
+\end{enumerate}
 
 The purpose of these scaling constants is to ensure that the RoundGKR procedure, which looks for paths of value 1, will actually see these paths. We preserve the fact that paths with low capacity are chosen with lower probability. The reason why we have $\tau' = O(\log n)$ iterations is because is because  Lemma~\ref{lem:findpath} shows that RoundGKR finds paths in trees which avoid specific edges with probability $\Omega(\frac{1}{\log n})$. $O(\log n)$ repetitions ensure a constant probability of finding such paths.
 
@@ -262,7 +267,7 @@ Observe that $c(x)$ is the value of the LP-optimum, which must be at least as go
 \begin{proof}
 We prove this by bounding the probability that a given edge is included in $H$ by $O(\log^4n(\frac{\log h}{k} + 1))x_e$. The claim then follows by linearity of expectation.
 
-Let $(T = (V_T, E_T), y, \text{map})$ be a R\"{a}cke's tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_t$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
+Let $(T = (V_T, E_T), y, \text{map})$ be a R\"{a}cke's tree sampled from $\mathcal{D}$. For an edge $e$ to be included in our output subgraph $H$, there must have been some tree edge $e' \in E_T$ that maps to $e$ (so $e \in \mathrm{map}(e')$) selected to be in $E^{v,q}$ for some vertex $v \in V_T$ and some index $q \in [0,\dots,2\log n]$. For this to occur, $v$ must be $q$-marked, an event that occurs with probability $\frac{4}{2^{q}}$. 
 
 We first bound the probability that an edge $e' \in E_T$ is included, which we will then use to bound the probability the algorithm includes an edge $e \in E$.
 
@@ -292,7 +297,7 @@ Recall that in Section 3, we defined $load(e) = \sum_{e' \in \mathrm{map}^{-1}(e
 &\leq O(\log^3 n) \tau \textbf{E}[rload(e) x_e'] \\
                 &\leq O(\log^3 n) \tau \frac{4}{k} \alpha x_e
 \end{align}
-The last line of the above computation uses the value of $\alpha$, defined in Section 3 as $\alpha = max_{e \in E}\textbf{E}[rload(e)]$. We have from Lemma 2 that $\alpha$ is $O(\log n)$. To simplify notation, we write $\textbf{E}[X_e]$ as the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. So our final inequality is 
+The last line of the above computation uses the value of $\alpha$, defined in Section 3 as $\alpha = \max_{e \in E}\textbf{E}[rload(e)]$. We have from Lemma 2 that $\alpha$ is $O(\log n)$. To simplify notation, we write $\textbf{E}[X_e]$ as the expectation over both random choices of the algorithm as well as random choices of the R\"{a}cke tree. So our final inequality is 
 \begin{align}
  \textbf{E}[X_e] &\leq \frac{O(\log^4 n)\tau}{k} x_e 
 \end{align}
@@ -427,49 +432,52 @@ This concludes steps $3$ and $4$ of the proof idea. This finishes the proof that
 
 \section{Conclusion}
 
-In this paper, we introduced the Survivable Set Connectivity problem along with the only known approximation algorithm for it. To present the algorithm, we formulated a linear program for the problem, gave a type of tree embedding for general graphs, and a rounding procedure that works exclusively on trees.
+In this paper, we introduced the Survivable Set Connectivity problem along with the only known approximation algorithm for it. To present the algorithm, we formulated a linear program for the problem, gave a type of tree embedding for general graphs, and a rounding procedure designed to work on trees.
 
-It seems that there is much room for improvements to the algorithm, which currently has a $\log^4(n)$ term in the approximation ratio. In an optional section following this conclusion, we give some of our own ideas for potential improvements. We were able to shave one of the $\log(n)$ factors in a very special case, but we did not think that our improvements were substantial enough to deserve a large section in this paper.
+It seems that there should be room for improvement to the algorithm presented in this paper, which has a $\log^4(n)$ term in the approximation ratio. We are optimistic that a better approxiation will be found in the future.
 
-\section{Optional Section: Minor Potential Improvements}
-
-To Prof. Karger: This section is completely optional, and not part of our paper. As a group, we were leaning towards not including it at all, but we wanted to show that we had thought about the algorithm deeply outside of just rewriting it.
-
-There seems to be a trade off in the algorithm between finding flow paths between many groups at once and searching for nodes the flow paths traverse. In the original algorithm, we must iterate through each $v \in V_T$ and run some RoundGKRrounds on its subtree. If there are multiple flow paths from different groups, say $(S_1', T_1')$ and $(S_2', T_2')$ going through $v$, then the original algorithm could find both at once. We could be finding $h$ paths with $O(\log n)$ cost (since running RoundGKR on each subtree makes each edge appear in $O(\log n)$ subtrees). 
-
-If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). We can run the algorithm without looking for the nodes where the flow paths turn. In particular, we could treat it as many different instances of the Group Steiner Tree problem. The algorithm would be:
-\begin{codebox}
-\li Set $H \leftarrow \emptyset$
-\li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
-\li Let $x' \leftarrow x*\frac{4}{k}$. 
-\li Let $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
-\li \For $\tau$ rounds \Do
-\li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
-\li \For $q = 0, ..., 2\log n$ \Do
-\li \For \For $i \in [h]$ and $s \in S_i'$ \Do
-\li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $s$
-\li \If $s$ is $q$-marked \Then
-\li Set $y^{s, q}\leftarrow 2^{q+1}y$ and $E^{s,q} \leftarrow \emptyset$.
-\li \For $\tau'$ iterations, \Do
-\li $E^{s,q} \leftarrow E^{s,q} \cup$ RoundGKR$(T_s, s, y^{s,q})$ \End
-\li $H \leftarrow H \cup \text{map}(E^{s,q})$ \End \End \End \End
-\li return $H$
-\end{codebox}
-The main difference lies in line 8. Instead of iterating through all $v \in V_T$ to find where the flow path turns, we take advantage of knowing where the flow begins. We know all flow paths go from $S_i'$ to $T_i'$, so we make $s \in S_i'$ the root of the tree. It is unnecessary to look for where the flow turns. We still have to iterate through $q= 0, ..., 2\log n$, since the flow of at least $1$ between $S_i'$ and $T_i'$ might be divided among different flow paths starting at different nodes in $S_i'$. This gets rid of the $O(\log n)$ factor in the cost because of the height, and adds a factor of $S$.
-
-Theorem~\ref{theorem:connected} still holds since we know exactly where the flow paths must start.
-
-\begin{lemma}
-The above algorithm has $\textbf{E}[c(H)] = O(S\log^3 n(\dfrac{\log h}{k} + 1))*c(x)$.
-\end{lemma}
-
-\begin{proof}
-The proof is the same as the proof of Lemma~\ref{lem:cost}. The only difference is that instead of each edge being included in at most $height(T)$ RoundGKR steps, we include it in at most $S$ RoundGKR steps. 
-\end{proof}
-
-Therefore, if $S = o(\log n)$, it is better to run this modified algorithm. Along similar lines, if $\sum_{i \in [h]} |T_i| = T$ is small, then we could compress the R\"{a}cke tree to contain only the leaves we want. If $T = O(\log n)$, then the tree could be compressed to size $O(\log n)$, and so we would find unit flow paths with probability $\Omega(\frac{1}{\log \log n})$. This means we could reduce $\tau'$ to $O(\log \log n)$ and decrease our approximation ratio.
-
-Now the question becomes, can we reduce $S$ to $h$? One possible idea is to join all the nodes in $S_i'$. This would destroy the tree property for RoundGKR, but maybe we can disregard some cycles (at least if we analyzed the case with unit costs on the edges). \cite{ssc} uses RoundGKR and R\"{a}cke trees as black boxes, so maybe there is some hope. If this is possible, then our competitiveness would be $O(h\log^3n(\dfrac{\log h}{k} + 1))$. Now if $h = o(\log n)$, then we would prefer this algorithm.
+%
+%In an optional section following this conclusion, we give some of our own ideas for potential improvements. We were able to shave one of the $\log(n)$ factors in a very special case, but we did not think that our improvements were substantial enough to deserve a large section in this paper.
+%
+%\section{Optional Section: Minor Potential Improvements}
+%
+%To Prof. Karger: This section is completely optional, and not part of our paper. As a group, we were leaning towards not including it at all, but we wanted to show that we had thought about the algorithm deeply outside of just rewriting it.
+%
+%There seems to be a trade off in the algorithm between finding flow paths between many groups at once and searching for nodes the flow paths traverse. In the original algorithm, we must iterate through each $v \in V_T$ and run some RoundGKRrounds on its subtree. If there are multiple flow paths from different groups, say $(S_1', T_1')$ and $(S_2', T_2')$ going through $v$, then the original algorithm could find both at once. We could be finding $h$ paths with $O(\log n)$ cost (since running RoundGKR on each subtree makes each edge appear in $O(\log n)$ subtrees). 
+%
+%If we know $\sum_{i=1}^h |S_i| = S$ is small (the number of sources is small). We can run the algorithm without looking for the nodes where the flow paths turn. In particular, we could treat it as many different instances of the Group Steiner Tree problem. The algorithm would be:
+%\begin{codebox}
+%\li Set $H \leftarrow \emptyset$
+%\li Compute linear program SSC-LP and set to zero any $x_e < \dfrac{k}{n^2}$.
+%\li Let $x' \leftarrow x*\frac{4}{k}$. 
+%\li Let $\mathcal{D}$ be the distribution of R\"{a}cke's tree embeddings for $G$ with $x'$.
+%\li \For $\tau$ rounds \Do
+%\li Sample $(T, y, \text{map})$ from $\mathcal{D}$. 
+%\li \For $q = 0, ..., 2\log n$ \Do
+%\li \For \For $i \in [h]$ and $s \in S_i'$ \Do
+%\li With probability $\min\{1, \dfrac{4}{2^q}\}$, $q$-mark $s$
+%\li \If $s$ is $q$-marked \Then
+%\li Set $y^{s, q}\leftarrow 2^{q+1}y$ and $E^{s,q} \leftarrow \emptyset$.
+%\li \For $\tau'$ iterations, \Do
+%\li $E^{s,q} \leftarrow E^{s,q} \cup$ RoundGKR$(T_s, s, y^{s,q})$ \End
+%\li $H \leftarrow H \cup \text{map}(E^{s,q})$ \End \End \End \End
+%\li return $H$
+%\end{codebox}
+%The main difference lies in line 8. Instead of iterating through all $v \in V_T$ to find where the flow path turns, we take advantage of knowing where the flow begins. We know all flow paths go from $S_i'$ to $T_i'$, so we make $s \in S_i'$ the root of the tree. It is unnecessary to look for where the flow turns. We still have to iterate through $q= 0, ..., 2\log n$, since the flow of at least $1$ between $S_i'$ and $T_i'$ might be divided among different flow paths starting at different nodes in $S_i'$. This gets rid of the $O(\log n)$ factor in the cost because of the height, and adds a factor of $S$.
+%
+%Theorem~\ref{theorem:connected} still holds since we know exactly where the flow paths must start.
+%
+%\begin{lemma}
+%The above algorithm has $\textbf{E}[c(H)] = O(S\log^3 n(\dfrac{\log h}{k} + 1))*c(x)$.
+%\end{lemma}
+%
+%\begin{proof}
+%The proof is the same as the proof of Lemma~\ref{lem:cost}. The only difference is that instead of each edge being included in at most $height(T)$ RoundGKR steps, we include it in at most $S$ RoundGKR steps. 
+%\end{proof}
+%
+%Therefore, if $S = o(\log n)$, it is better to run this modified algorithm. Along similar lines, if $\sum_{i \in [h]} |T_i| = T$ is small, then we could compress the R\"{a}cke tree to contain only the leaves we want. If $T = O(\log n)$, then the tree could be compressed to size $O(\log n)$, and so we would find unit flow paths with probability $\Omega(\frac{1}{\log \log n})$. This means we could reduce $\tau'$ to $O(\log \log n)$ and decrease our approximation ratio.
+%
+%Now the question becomes, can we reduce $S$ to $h$? One possible idea is to join all the nodes in $S_i'$. This would destroy the tree property for RoundGKR, but maybe we can disregard some cycles (at least if we analyzed the case with unit costs on the edges). \cite{ssc} uses RoundGKR and R\"{a}cke trees as black boxes, so maybe there is some hope. If this is possible, then our competitiveness would be $O(h\log^3n(\dfrac{\log h}{k} + 1))$. Now if $h = o(\log n)$, then we would prefer this algorithm.
 
 \bibliography{references}
 \bibliographystyle{splncs}
